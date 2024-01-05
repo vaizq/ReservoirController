@@ -5,6 +5,9 @@
 #include <utility>
 
 
+namespace Device
+{
+
 template <LiquidLevelSensor SensorT, Valve ValveT>
 class LiquidLevelController
 {
@@ -30,3 +33,5 @@ private:
     SensorT mSensor;
     ValveT mValve;
 };
+
+}
