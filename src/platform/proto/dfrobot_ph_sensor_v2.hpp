@@ -1,8 +1,6 @@
 #ifndef PH_SENSOR_HPP
 #define PH_SENSOR_HPP
 
-#include <stdint.h>
-#include <functional>
 #include "esp_adc/adc_oneshot.h"
 #include "esp_adc/adc_cali.h"
 
@@ -17,6 +15,8 @@ public:
     ~PhSensor();
     PhSensor(const PhSensor&) = delete;
     PhSensor& operator=(const PhSensor&) = delete;
+    PhSensor(PhSensor&&) = default;
+    PhSensor& operator=(PhSensor&&) = default;
     float readPH();
     bool calibrate();
 private:

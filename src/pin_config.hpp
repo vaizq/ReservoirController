@@ -11,10 +11,10 @@ namespace Config
 using namespace Proto;
 
 constexpr TB6612FNGPump::PinDef phDownPumpDef = {.xIN1 = GPIO_NUM_4, .xIN2 = GPIO_NUM_5, .PWMx = GPIO_NUM_23}; // A
+constexpr TB6612FNGPump::PinDef phUpPumpDef = {.xIN1 = GPIO_NUM_12, .xIN2 = GPIO_NUM_13, .PWMx = GPIO_NUM_14}; // B
 
-constexpr std::array<TB6612FNGPump::PinDef, 3> nutrientPumpDefs = 
+constexpr std::array<TB6612FNGPump::PinDef, 2> nutrientPumpDefs = 
     {
-        TB6612FNGPump::PinDef{.xIN1 = GPIO_NUM_12, .xIN2 = GPIO_NUM_13, .PWMx = GPIO_NUM_14}, // B
         TB6612FNGPump::PinDef{.xIN1 = GPIO_NUM_15, .xIN2 = GPIO_NUM_16, .PWMx = GPIO_NUM_17}, // A
         TB6612FNGPump::PinDef{.xIN1 = GPIO_NUM_18, .xIN2 = GPIO_NUM_19, .PWMx = GPIO_NUM_21} // B
     };

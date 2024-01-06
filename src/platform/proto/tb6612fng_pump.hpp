@@ -32,22 +32,22 @@ public:
         gpio_set_level(mPins.xIN1, 1);
         gpio_set_level(mPins.xIN2, 0);
 
-        stop();
+        close();
     }
 
-    void start()
+    void open()
     {
         gpio_set_level(mPins.PWMx, 1);
         mIsRunning = true;
     }
 
-    void stop()
+    void close()
     {
         gpio_set_level(mPins.PWMx, 0);
         mIsRunning = false;
     }
 
-    bool isRunning() const { return mIsRunning; }
+    bool isOpen() const { return mIsRunning; }
 
 private:
     const PinDef mPins;

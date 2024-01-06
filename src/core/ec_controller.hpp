@@ -1,7 +1,9 @@
 #pragma once
 
-#include "core/actuators.hpp"
-#include "core/sensors.hpp"
+#include "actuators.hpp"
+#include "duration.hpp"
+#include "dosing_pump.hpp"
+#include "sensors.hpp"
 
 #include <array>
 #include <chrono>
@@ -9,14 +11,14 @@
 #include <ranges>
 #include <numeric>
 
+namespace Core
+{
 
-
-
-template<ECSensor SensorT, DosingPump PumpT, unsigned int PumpCount>
+template<ECSensor SensorT, Doser DoserT, unsigned int PumpCount>
 class ECController
 {
 public:
-    using PumpArray = std::array<DosingPump, PumpCount>;
+    using PumpArray = std::array<DoserT, PumpCount>;
     using AmountPerLiter = float;
     using Schedule = std::array<AmountPerLiter, PumpCount>;
 
@@ -44,20 +46,25 @@ public:
 
     void setConfig(const Config& config) { mConfig = config; }
 
-    void setTargetEC(float ec) { mTargetEC = ec; }
+    void setTargetEC(float ec) { mConfig.targetEC = ec; }
 
-    void loop()
+    void update(Duration dt)
     {
         const float ec = mSensor.readEC();
         // Check if EC is too low and none of the pumps are dosing
-        if (ec < mTargetEC && 
-            std::find_if(mPumps.begin(), mPumps.end(), [](const PumpT& pump) { return pump.isDosing(); }) == std::end(mPumps));
+        if (ec < mConfig.targetEC && 
+            std::find_if(mPumps.begin(), mPumps.end(), [](const auto& pump) { return pump.isDosing(); }) == std::end(mPumps))
         {
             for (int i = 0; i < PumpCount; i++)
             {
                 const float amount = mPumpRatios[i] * mConfig.doseAmount; 
                 mPumps[i].dose(amount);
             }
+        }
+
+        for (auto& pump : mPumps)
+        {
+            pump.update(dt);
         }
     }
 
@@ -68,8 +75,4 @@ private:
     Config mConfig;
 };
 
-
-
-
-
-
+}

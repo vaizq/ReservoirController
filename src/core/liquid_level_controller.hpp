@@ -1,11 +1,12 @@
 #pragma once
 
-#include "core/sensors.hpp"
-#include "core/actuators.hpp"
+#include "actuators.hpp"
+#include "duration.hpp"
+#include "sensors.hpp"
 #include <utility>
 
 
-namespace Device
+namespace Core
 {
 
 template <LiquidLevelSensor SensorT, Valve ValveT>
@@ -18,7 +19,7 @@ public:
         mValve.close();
     }
 
-    void update()
+    void update(Duration dt)
     {
         if (mSensor.liquidIsPresent())
         {

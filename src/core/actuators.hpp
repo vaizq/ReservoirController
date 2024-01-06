@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concepts>
+#include "duration.hpp"
 
 
 template <typename T>
@@ -9,22 +10,13 @@ concept Valve = requires(T valve)
     { valve.open() };
     { valve.close() };
     { valve.isOpen() } -> std::convertible_to<bool>;
-
 };
 
-template <typename T>
-concept Pump = requires(T pump)
-{
-    { pump.start() };
-    { pump.stop() };
-    { pump.isRunning() } -> std::convertible_to<bool>;
-};
 
 template <typename T>
-concept DosingPump = requires(T pump, float amount)
+concept Doser = requires(T doser, float amount, Duration dt)
 {
-    { pump.dose(amount) };
-    { pump.stop() };
-    { pump.isDosing() } -> std::convertible_to<bool>;
-    { pump.loop() };
+    { doser.dose(amount) };
+    { doser.isDosing() } -> std::convertible_to<bool>;
+    { doser.update(dt) };
 };
