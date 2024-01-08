@@ -6,12 +6,9 @@ int main()
 {
     App app;
 
-    DtTimer timer;
-
     bool run = true;
     while(run)
     {
-        const auto dt = timer.tick();
-        run = app.loop(dt);
+        app.loop();
     }
 }

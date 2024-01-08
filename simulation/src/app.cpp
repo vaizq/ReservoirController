@@ -5,6 +5,7 @@
 #include <cmath>
 
 App::App()
+: mTimer(mClock)
 {
   // Initialize GLFW
     glfwInit();
@@ -40,7 +41,7 @@ App::~App()
     glfwTerminate();
 }
 
-bool App::loop(Duration dt)
+bool App::loop()
 {
     // Poll for and process events
     glfwPollEvents();
@@ -50,8 +51,8 @@ bool App::loop(Duration dt)
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    update(dt);
-    render(dt);
+    update(mTimer.tick());
+    render();
 
     return !glfwWindowShouldClose(mWindow);
 }
@@ -90,7 +91,11 @@ void App::update(Duration dt)
 
     ImGui::Begin("Environment");
     {
-        ImGui::SliderFloat("Time scale", &mTimeScale, 1.0f, 60.0f * 24.0f);
+        static float timeScale = 1.0f;
+        if (ImGui::SliderFloat("Time scale", &timeScale, 1.0f, 60.0f * 24.0f))
+        {
+            mClock.setScale(timeScale);
+        }
 
         static float waterAmount = 0.0f;
         ImGui::SliderFloat("WaterAmount", &waterAmount, 0.0f, 100.0f);
@@ -107,13 +112,13 @@ void App::update(Duration dt)
     }
     ImGui::End();
 
-    static Clock::time_point lastUpdate = Clock::now();
+    static auto lastUpdate = mClock.now();
 
-    auto now = Clock::now();
-    if (mTimeScale * (now - lastUpdate) > mDosingInterval)
+    const auto now = mClock.now();
+    if (now - lastUpdate > mDosingInterval)
     {
         const float ph = mReservoir.content().ph;
-        const float pidOutput = mPid.calculate(mTargetPh, ph, dt * mTimeScale);
+        const float pidOutput = mPid.calculate(mTargetPh, ph, dt);
         const float amount = std::abs(pidOutput);
         if (pidOutput > 0.0f)
         {
@@ -128,7 +133,7 @@ void App::update(Duration dt)
 
 }
 
-void App::render(Duration dt)
+void App::render()
 {
     // Render ImGui
     ImGui::Render();
