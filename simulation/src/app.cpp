@@ -3,9 +3,10 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 #include <cmath>
+#include <iostream>
 
 App::App()
-: mTimer(mClock)
+: mClock(60.0f), mTimer(mClock)
 {
   // Initialize GLFW
     glfwInit();
@@ -28,6 +29,12 @@ App::App()
     // Setup ImGui Platform and Renderer bindings
     ImGui_ImplGlfw_InitForOpenGL(mWindow, true);
     ImGui_ImplOpenGL3_Init("#version 130");
+}
+
+App &App::instance()
+{
+    static App app;
+    return app;
 }
 
 App::~App()
@@ -91,8 +98,8 @@ void App::update(Duration dt)
 
     ImGui::Begin("Environment");
     {
-        static float timeScale = 1.0f;
-        if (ImGui::SliderFloat("Time scale", &timeScale, 1.0f, 60.0f * 24.0f))
+        static float timeScale = mClock.getScale();
+        if (ImGui::SliderFloat("Time scale", &timeScale, 1.0f, 120.0f))
         {
             mClock.setScale(timeScale);
         }
@@ -112,10 +119,10 @@ void App::update(Duration dt)
     }
     ImGui::End();
 
-    static auto lastUpdate = mClock.now();
 
-    const auto now = mClock.now();
-    if (now - lastUpdate > mDosingInterval)
+    static DoTimer<decltype(mClock)> doTimer(mClock, mDosingInterval);
+
+    if (doTimer.isTime())
     {
         const float ph = mReservoir.content().ph;
         const float pidOutput = mPid.calculate(mTargetPh, ph, dt);
@@ -128,9 +135,7 @@ void App::update(Duration dt)
         {
             mReservoir.add(Liquid(amount, 0.0f, 0.0f)); // add ph down
         }
-        lastUpdate = now;
     }
-
 }
 
 void App::render()

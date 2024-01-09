@@ -4,11 +4,10 @@
 
 int main()
 {
-    App app;
-
+    auto& app = App::instance();
     bool run = true;
     while(run)
     {
-        app.loop();
+        run = app.loop();
     }
 }

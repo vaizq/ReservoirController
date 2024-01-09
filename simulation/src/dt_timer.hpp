@@ -3,7 +3,7 @@
 #include <chrono>
 
 
-template<typename Clock, typename Duration>
+template<typename Clock, typename Duration = std::chrono::duration<float>>
 class DtTimer
 {
 public:

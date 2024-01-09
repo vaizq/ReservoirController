@@ -4,8 +4,9 @@
 #include <chrono>
 #include "reservoir.hpp"
 #include "pid/pid.hpp"
-#include "scaled_clock.hpp"
+#include "relative_clock.hpp"
 #include "dt_timer.hpp"
+#include "do_timer.hpp"
 
 using Duration = std::chrono::duration<float>;
 
@@ -13,11 +14,17 @@ using Duration = std::chrono::duration<float>;
 class App
 {
 public:
-    App();
+    static App& instance();
+    App(const App&) = delete;
+    App& operator=(const App&) = delete;
+    App(App&&) = delete;
+    App& operator=(App&&) = delete;
     ~App();
+
     bool loop();
 private:
-    void update(Duration dt);
+    App();
+    void update(const Duration dt);
     void render();
 private:
     GLFWwindow* mWindow;
@@ -25,6 +32,6 @@ private:
     Pid mPid;
     float mTargetPh = 6.0f;
     Duration mDosingInterval = std::chrono::minutes(1);
-    ScaledClock<float, std::chrono::steady_clock> mClock;
+    RelativeClock<std::chrono::steady_clock, float> mClock;
     DtTimer<decltype(mClock), Duration> mTimer;
 };
