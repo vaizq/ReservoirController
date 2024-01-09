@@ -15,7 +15,7 @@ App::App()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 
     // Create a windowed mode window and its OpenGL context
-    mWindow = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    mWindow = glfwCreateWindow(1280, 960, "Hello World", NULL, NULL);
 
     // Make the window's context current
     glfwMakeContextCurrent(mWindow);

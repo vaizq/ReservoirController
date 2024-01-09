@@ -7,13 +7,13 @@ template <typename Clock = std::chrono::steady_clock, typename Scalar = double>
 class RelativeClock 
 {
 public:
-    using duration = std::chrono::duration<Scalar, typename Clock::period>;
-    using time_point = std::chrono::time_point<RelativeClock>;
+    using duration = Clock::duration;
+    using time_point = Clock::time_point;
 
     RelativeClock(Scalar scale = 1.0f)
     : mScale(scale)
     {
-        mTp = time_point(mClock.now().time_since_epoch());
+        mTp = mClock.now();
         mStart = mClock.now();
     }
 
@@ -32,7 +32,7 @@ public:
     time_point now() noexcept
     {
         const auto elapsed = mClock.now() - mStart;
-        return mTp + mScale * elapsed;
+        return mTp + std::chrono::duration_cast<duration>(mScale * elapsed);
     }
 
 private:

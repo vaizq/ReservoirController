@@ -8,7 +8,9 @@
 #include "dt_timer.hpp"
 #include "do_timer.hpp"
 
+
 using Duration = std::chrono::duration<float>;
+using Clock = RelativeClock<std::chrono::steady_clock, float>;
 
 
 class App
@@ -31,7 +33,7 @@ private:
     Reservoir mReservoir{Liquid{.amount = 10.0f, .ph = 8.0f, .ec = 0.2f}};
     Pid mPid;
     float mTargetPh = 6.0f;
-    Duration mDosingInterval = std::chrono::minutes(1);
-    RelativeClock<std::chrono::steady_clock, float> mClock;
+    Clock mClock;
+    std::chrono::minutes mDosingInterval {1};
     DtTimer<decltype(mClock), Duration> mTimer;
 };

@@ -34,7 +34,7 @@ constexpr std::chrono::milliseconds toMs(auto duration)
     return std::chrono::duration_cast<std::chrono::milliseconds>(duration);
 }
 
-TEST_CASE("variation", "[scaled_clock]")
+TEST_CASE("variation", "[relative_clock]")
 {
     using std::chrono::steady_clock;
 
@@ -45,9 +45,9 @@ TEST_CASE("variation", "[scaled_clock]")
             return b - a;
     };
 
-    std::vector<double> scalars = {2., 1., 60., 3., 1000., 4.};
-    constexpr std::chrono::milliseconds dt(100);
-    constexpr auto ace = std::chrono::milliseconds(10);
+    std::vector<double> scalars = {2.0, 1.0, 60.0, 3.0, 100.0, 4.0, 99.0, 0.1};
+    constexpr std::chrono::milliseconds dt(10);
+    constexpr auto ace = std::chrono::milliseconds(1);
 
     RelativeClock<steady_clock, double> scaled(1.0f);
     steady_clock steady;
@@ -72,7 +72,7 @@ TEST_CASE("variation", "[scaled_clock]")
     using Duration = decltype(scaled)::duration;
     const auto expected = std::accumulate(scalars.begin(), scalars.end(), Duration(0),
         [dt](Duration dur, double k) {
-            return dur + k * dt;
+            return dur + std::chrono::duration_cast<Duration>(k * dt);
         });
     
     const double avgK = std::accumulate(scalars.begin(), scalars.end(), 0.) / scalars.size();
