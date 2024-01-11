@@ -12,9 +12,12 @@
 #include "./driver/liquid_level_sensor.hpp"
 #include "./driver/valve.hpp"
 #include "./driver/ph_sensor.hpp"
+#include "./driver/ec_sensor.hpp"
 
 #include <chrono>
 
+
+using Doser = Core::DosingPump<Driver::Valve>;
 
 
 struct Config
@@ -22,19 +25,25 @@ struct Config
     float targetPH = 6.0f;
     float targetEC = 1.0f;
     float targetLevel = 200.0f;
-    float waterFlowRate_L = 1.0f;
-    float phFlowRate_mL = 1.0f;
+    float waterFlowRate = 1.0f;
+    float doserFlowRate = 0.001f;
 };
 
 
-constexpr std::array<float, 3> nutrientSchedule = {1.0f, 2.0f, 3.0f}; // GHE three part
+static constexpr Core::Controller::Config phControllerConfig{{5.8f, 6.2f}, 0.01f, std::chrono::minutes(10)};
+static constexpr Core::Controller::Config ecControllerConfig{{1.0f, 1.2f}, 0.1f, std::chrono::minutes(10)};
+constexpr size_t nutrientPumpCount{3};
+constexpr std::array<float, nutrientPumpCount> feedingSchedule = {1.0f, 2.0f, 3.0f}; // GHE three part
+
+
+static Doser makeDoser(Reservoir& reservoir, float flowRate, Driver::Valve::LiquidSupply supply);
+static std::array<Doser, nutrientPumpCount> makeNutrientDosers(Reservoir& reservoir, float flowRate, Driver::Valve::LiquidSupply supply);
 
 
 class Simulation : public AppBase
 {
     using Duration = std::chrono::duration<float>;
     using Clock = RelativeClock<std::chrono::steady_clock, float>;
-    using Doser = Core::DosingPump<Driver::Valve>;
 public:
     static Simulation& instance();
     Simulation(const Simulation&) = delete;
@@ -55,7 +64,7 @@ private:
     Reservoir mReservoir{250.0f};
     Core::LiquidLevelController<Driver::LiquidLevelSensor, Driver::Valve> mLLController;
     Core::PhController<Driver::PhSensor, Driver::Valve> mPhController;
+    Core::ECController<Driver::EcSensor, Driver::Valve, 3> mEcController;
 };
 
 
-static constexpr Core::Controller::Config phControllerConfig();

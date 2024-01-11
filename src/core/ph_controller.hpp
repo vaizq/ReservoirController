@@ -34,9 +34,9 @@ public:
         mConfig = config; 
     }
 
-    ValveT& getValve()
+    Doser& getDoser()
     {
-        return mPhDownPump.getValve();
+        return mPhDownPump;
     }
 
     void update(Duration dt)

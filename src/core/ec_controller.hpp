@@ -54,14 +54,21 @@ public:
         mConfig = config; 
     }
 
+    PumpArray& getDosers()
+    {
+        return mPumps;
+    }
+
+
     void update(Duration dt)
     {
-        const float ec = mSensor.readEC();
-        const auto now = Clock::now();
-        const bool doseTime = (now - mPrevDose) > mConfig.dosingInterval;
+        mFromPrevDosing += dt;
+        const bool timeToDose = mFromPrevDosing > mConfig.dosingInterval;
 
-        // Check if EC is too low and none of the pumps are dosing
-        if (doseTime && ec < mConfig.targetRange.first && 
+        const float ec = mSensor.readEC();
+
+        // Check if it's timeToDose, EC is too low and none of the pumps are dosing
+        if (timeToDose && ec < mConfig.targetRange.first && 
             std::find_if(mPumps.begin(), mPumps.end(), [](const auto& pump) { return pump.isDosing(); }) == std::end(mPumps))
         {
             for (int i = 0; i < PumpCount; i++)
@@ -70,7 +77,7 @@ public:
                 mPumps[i].dose(amount);
             }
 
-            mPrevDose = now;
+            mFromPrevDosing = Duration{0};
         }
 
         for (auto& pump : mPumps)
@@ -84,7 +91,7 @@ private:
     PumpArray mPumps;
     std::array<float, PumpCount> mPumpRatios{0.0f};
     Controller::Config mConfig;
-    Clock::time_point mPrevDose;
+    Duration mFromPrevDosing;
 };
 
 }

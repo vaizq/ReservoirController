@@ -21,7 +21,6 @@ struct Liquid
 };
 
 
-
 constexpr Liquid finnishTapWater(float amount)
 {
     return Liquid{.amount = amount, .ph = 8.0f, .ec = 0.2f};
@@ -32,9 +31,24 @@ constexpr Liquid phDownSolution(float amount)
     return Liquid{.amount = amount, .ph = 1.0f, .ec = 0.2f};
 }
 
+constexpr Liquid phUpSolution(float amount)
+{
+    return Liquid{.amount = amount, .ph = 13.0f, .ec = 0.2f};
+}
+
 constexpr Liquid nutrientSolution(float amount)
 {
-    return Liquid{.amount = amount, .ph = 2.5f, .ec = 100.0f};
+    return Liquid{.amount = amount, .ph = 5.0f, .ec = 100.0f};
+}
+
+constexpr float mL2L(float amount_mL)
+{
+    return amount_mL / 1000.0f;
+}
+
+constexpr float L2mL(float amount_L)
+{
+    return 1000.0f * amount_L;
 }
 
 

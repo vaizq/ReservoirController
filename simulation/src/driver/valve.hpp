@@ -11,10 +11,10 @@ namespace Driver
 
 class Valve
 {
-    using Clock = std::chrono::steady_clock;
+public:
     using Duration = std::chrono::duration<float>;
     using LiquidSupply = std::function<Liquid(float amount)>;
-public:
+
     Valve(Reservoir& reservoir, float flowRate, LiquidSupply supply = finnishTapWater)
     : mReservoir(reservoir), mFlowRate(flowRate), mLiquidSupply(supply)
     {
