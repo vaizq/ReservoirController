@@ -2,7 +2,7 @@
 
 #include <driver/gpio.h>
 
-namespace Proto 
+namespace Driver 
 {
 
 class Valve 

@@ -1,7 +1,8 @@
 #pragma once
 
 #include "actuators.hpp"
-#include "duration.hpp"
+#include "controller.hpp"
+#include "common.hpp"
 #include "dosing_pump.hpp"
 #include "sensors.hpp"
 #include <chrono>
@@ -10,46 +11,55 @@
 namespace Core
 {
 
-template <PHSensor SensorT, Doser DoserT>
+template <PHSensor SensorT, Valve ValveT>
 class PhController
 {
+    using Doser = DosingPump<ValveT>;
 public:
-    struct Config
-    {
-        float phTarget = 5.8f;
-        float doseAmount = 1.0f;
-    };
 
-    PhController(SensorT&& sensor, DoserT&& downPump, DoserT&& upPump)
+    static constexpr Controller::Config defaultConfig()
+    {
+        return Controller::Config(std::make_pair<float, float>(5.8f, 6.2f), 1.0f, std::chrono::minutes(1));
+    }
+
+    PhController(SensorT&& sensor, Doser&& phDownPump, const Controller::Config& config = defaultConfig())
     : 
-        mSensor(std::forward<SensorT>(sensor)), 
-        mDownPump(std::forward<DoserT>(downPump)), 
-        mUpPump(std::forward<DoserT>(upPump))
+        mSensor{std::move(sensor)}, 
+        mPhDownPump{std::move(phDownPump)}, 
+        mConfig{config}
     {}
 
-    void setConfig(const Config& config) { mConfig = config; }
+    void setConfig(const Controller::Config& config) 
+    { 
+        mConfig = config; 
+    }
+
+    ValveT& getValve()
+    {
+        return mPhDownPump.getValve();
+    }
 
     void update(Duration dt)
     {
-        const float ph = mSensor.readPH();
-        if (ph < mConfig.phTarget && !mUpPump.isDosing())
+        mFromLastDose += dt;
+        const bool timeToDose = mFromLastDose > mConfig.dosingInterval;
+
+        const float ph{mSensor.readPH()};
+
+        if (timeToDose && ph > mConfig.targetRange.second)
         {
-            mUpPump.dose(mConfig.doseAmount);
-        }
-        else if (ph > mConfig.phTarget && !mDownPump.isDosing())
-        {
-            mDownPump.dose(mConfig.doseAmount);
+            mPhDownPump.dose(mConfig.dosingAmount);
+            mFromLastDose = Duration(0);
         }
 
-        mUpPump.update(dt);
-        mDownPump.update(dt);
+        mPhDownPump.update(dt);
     }
 
 private:
     SensorT mSensor;
-    DoserT mDownPump;
-    DoserT mUpPump;
-    Config mConfig;
+    Doser mPhDownPump;
+    Controller::Config mConfig;
+    Duration mFromLastDose;
 };
 
 }

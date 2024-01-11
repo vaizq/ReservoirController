@@ -1,28 +1,34 @@
 #pragma once
 
+#include "common.hpp"
 #include <chrono>
-#include "duration.hpp"
 
 
+namespace Core
+{
+
+template <typename Clock = std::chrono::steady_clock>
 class DtTimer
 {
-    using Clock = std::chrono::steady_clock;
 public:
     Duration tick()
     {
         if (!mInitialized)
         {
-            mLastTick = Clock::now();
+            mLastTick = mClock.now();
             mInitialized = true;
             return Duration(0.0f); 
         }
 
-        const auto now = Clock::now();
+        const auto now = mClock.now();
         const auto dt = std::chrono::duration_cast<Duration>(now - mLastTick);
         mLastTick = now;
         return dt;
     }
 private:
+    Clock mClock;
     Clock::time_point mLastTick;
     bool mInitialized{false};
 };
+
+}

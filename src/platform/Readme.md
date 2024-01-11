@@ -1,1 +1,0 @@
-# Implementations of devices for different platforms

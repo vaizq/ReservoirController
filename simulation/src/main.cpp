@@ -1,13 +1,13 @@
-#include "app.hpp"
+#include "simulation.hpp"
 #include "core/dt_timer.hpp"
 
 
 int main()
 {
-    auto& app = App::instance();
+    AppBase& sim = Simulation::instance();
     bool run = true;
     while(run)
     {
-        run = app.loop();
+        run = sim.loop();
     }
 }

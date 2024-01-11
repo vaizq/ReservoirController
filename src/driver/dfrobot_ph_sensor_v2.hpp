@@ -5,20 +5,25 @@
 #include "esp_adc/adc_cali.h"
 
 
-namespace Proto
+namespace Driver 
 {
 
 class PhSensor
 {
 public:
     PhSensor(int pin);
+
     ~PhSensor();
+
     PhSensor(const PhSensor&) = delete;
     PhSensor& operator=(const PhSensor&) = delete;
     PhSensor(PhSensor&&) = default;
     PhSensor& operator=(PhSensor&&) = default;
+
     float readPH();
+
     bool calibrate();
+
 private:
     float readVoltage();
 

@@ -7,7 +7,8 @@ Liquid operator+(const Liquid& lhs, const Liquid& rhs)
     if (l.amount > 0.0f)
     {
         l.ph = (lhs.ph * lhs.amount + rhs.ph * rhs.amount) / l.amount; // Weighted average
-        l.ec = (lhs.ec * lhs.amount + rhs.ec * rhs.amount) / l.amount;
+        l.ec = (lhs.ec * lhs.amount + rhs.ec * rhs.amount) / l.amount; // Weighted average
     }
     return l;
 }
+

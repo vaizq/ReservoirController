@@ -3,6 +3,8 @@
 #include "do_timer.hpp"
 #include "reservoir.hpp"
 #include "relative_clock.hpp"
+#include "driver/valve.hpp"
+#include "driver/liquid_level_sensor.hpp"
 #include <numeric>
 #include <vector>
 #include <thread>
@@ -118,4 +120,30 @@ TEST_CASE("do_timer", "[do_timer]")
         REQUIRE(duration > lower * interval);
         REQUIRE(duration < upper * interval);
     }
+}
+
+TEST_CASE("valve", "[valve]")
+{
+    constexpr float flowRate = 1.0f;
+    constexpr std::chrono::duration<float> openDuration = std::chrono::milliseconds(100);
+    constexpr float lower = 0.9f * flowRate * openDuration.count();
+    constexpr float upper = 1.1f * flowRate * openDuration.count();
+    Reservoir reservoir(100, Liquid{});
+    Driver::Valve valve(reservoir, flowRate);
+
+    valve.open();
+    std::this_thread::sleep_for(openDuration);
+    valve.close();
+
+    REQUIRE(reservoir.content().amount > lower);
+    REQUIRE(reservoir.content().amount < upper);
+
+    std::this_thread::sleep_for(openDuration);
+
+    valve.open();
+    std::this_thread::sleep_for(openDuration);
+    valve.close();
+
+    REQUIRE(reservoir.content().amount > 2 * lower);
+    REQUIRE(reservoir.content().amount < 2 * upper);
 }

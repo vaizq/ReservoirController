@@ -1,7 +1,7 @@
 #include "valve.hpp"
 
 
-Proto::Valve::Valve(gpio_num_t pin)
+Driver::Valve::Valve(gpio_num_t pin)
     : mPin(pin)
 {
     gpio_set_direction(mPin, GPIO_MODE_OUTPUT);
@@ -9,24 +9,24 @@ Proto::Valve::Valve(gpio_num_t pin)
     close();
 }
 
-Proto::Valve::~Valve()
+Driver::Valve::~Valve()
 {
     close();
 }
 
-void Proto::Valve::open()
+void Driver::Valve::open()
 {
     gpio_set_level(mPin, 1);
     mIsOpen = true;
 }
 
-void Proto::Valve::close()
+void Driver::Valve::close()
 {
     gpio_set_level(mPin, 0);
     mIsOpen = false;
 }
 
-bool Proto::Valve::isOpen() const
+bool Driver::Valve::isOpen() const
 {
     return mIsOpen;
 }

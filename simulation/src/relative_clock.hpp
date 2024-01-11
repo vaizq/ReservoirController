@@ -29,7 +29,7 @@ public:
         return mScale;
     }
 
-    time_point now() noexcept
+    time_point now() const noexcept
     {
         const auto elapsed = mClock.now() - mStart;
         return mTp + std::chrono::duration_cast<duration>(mScale * elapsed);
