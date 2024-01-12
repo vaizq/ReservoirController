@@ -40,20 +40,9 @@ public:
         return mValve;
     }
 
-    const Config& getConfig()
-    {
-        return mConfig;
-    }
-
-    const Status& getStatus()
-    {
-        return mStatus;
-    }
-
     void update(const Duration dt)
     {
         updateControl(dt);
-        updateStatus(dt);
     }
 
 private:
@@ -70,18 +59,6 @@ private:
         {
             mValve.open();
             mFromPrevRefill = Duration{0};
-        }
-    }
-
-    void updateStatus(const Duration dt)
-    {
-        if (mFromPrevRefill > mConfig.refillInterval)
-        {
-            mStatus.timeTillRefill = Duration{0};
-        }
-        else
-        {
-            mStatus.timeTillRefill = mConfig.refillInterval - mFromPrevRefill;
         }
     }
 

@@ -14,18 +14,18 @@ namespace Core
 template <PHSensor SensorT, Valve ValveT>
 class PhController
 {
-    using Doser = DosingPump<ValveT>;
 public:
+    using Doser = DosingPump<ValveT>;
 
     static constexpr Controller::Config defaultConfig()
     {
         return Controller::Config(std::make_pair<float, float>(5.8f, 6.2f), 1.0f, std::chrono::minutes(1));
     }
 
-    PhController(SensorT&& sensor, Doser&& phDownPump, const Controller::Config& config = defaultConfig())
+    PhController(SensorT&& sensor, Doser&& phDownDoser, const Controller::Config& config = defaultConfig())
     : 
         mSensor{std::move(sensor)}, 
-        mPhDownPump{std::move(phDownPump)}, 
+        mPhDownDoser{std::move(phDownDoser)}, 
         mConfig{config}
     {}
 
@@ -36,7 +36,7 @@ public:
 
     Doser& getDoser()
     {
-        return mPhDownPump;
+        return mPhDownDoser;
     }
 
     void update(Duration dt)
@@ -46,18 +46,18 @@ public:
 
         const float ph{mSensor.readPH()};
 
-        if (timeToDose && ph > mConfig.targetRange.second)
+        if (timeToDose && ph > mConfig.targetMax)
         {
-            mPhDownPump.dose(mConfig.dosingAmount);
+            mPhDownDoser.dose(mConfig.dosingAmount);
             mFromLastDose = Duration(0);
         }
 
-        mPhDownPump.update(dt);
+        mPhDownDoser.update(dt);
     }
 
 private:
     SensorT mSensor;
-    Doser mPhDownPump;
+    Doser mPhDownDoser;
     Controller::Config mConfig;
     Duration mFromLastDose;
 };

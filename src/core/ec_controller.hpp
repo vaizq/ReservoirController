@@ -16,13 +16,12 @@
 namespace Core
 {
 
-template<ECSensor SensorT, Valve ValveT, unsigned int PumpCount>
+template<ECSensor SensorT, Valve ValveT, size_t PumpCount>
 class ECController
 {
-    using Doser = DosingPump<ValveT>;
-
 public:
-    using PumpArray = std::array<Doser, PumpCount>;
+    using Doser = DosingPump<ValveT>;
+    using DoserArray = std::array<Doser, PumpCount>;
     using AmountPerLiter = float;
     using Schedule = std::array<AmountPerLiter, PumpCount>;
 
@@ -33,8 +32,8 @@ public:
     }
 
 
-    ECController(SensorT&& sensor, PumpArray&& pumps, const Controller::Config config = defaultConfig())
-    : mSensor(std::forward<SensorT>(sensor)), mPumps(std::move(pumps)), mConfig(config)
+    ECController(SensorT&& sensor, DoserArray&& dosers, const Controller::Config config = defaultConfig())
+    : mSensor(std::forward<SensorT>(sensor)), mDosers(std::move(dosers)), mConfig(config)
     {}
 
     void setSchedule(const Schedule& schedule)
@@ -45,8 +44,13 @@ public:
 
         for (int i = 0; i < PumpCount; i++)
         {
-            mPumpRatios[i] = schedule[i] / amountTotal;
+            mDoserSchedule[i] = schedule[i] / amountTotal;
         }
+    }
+
+    const Schedule& getSchedule()
+    {
+        return mDoserSchedule;
     }
 
     void setConfig(const Controller::Config& config) 
@@ -54,11 +58,10 @@ public:
         mConfig = config; 
     }
 
-    PumpArray& getDosers()
+    DoserArray& getDosers()
     {
-        return mPumps;
+        return mDosers;
     }
-
 
     void update(Duration dt)
     {
@@ -68,19 +71,19 @@ public:
         const float ec = mSensor.readEC();
 
         // Check if it's timeToDose, EC is too low and none of the pumps are dosing
-        if (timeToDose && ec < mConfig.targetRange.first && 
-            std::find_if(mPumps.begin(), mPumps.end(), [](const auto& pump) { return pump.isDosing(); }) == std::end(mPumps))
+        if (timeToDose && ec < mConfig.targetMin && 
+            std::find_if(mDosers.begin(), mDosers.end(), [](const auto& pump) { return pump.isDosing(); }) == std::end(mDosers))
         {
             for (int i = 0; i < PumpCount; i++)
             {
-                const float amount = mPumpRatios[i] * mConfig.dosingAmount; 
-                mPumps[i].dose(amount);
+                const float amount = mDoserSchedule[i] * mConfig.dosingAmount; 
+                mDosers[i].dose(amount);
             }
 
             mFromPrevDosing = Duration{0};
         }
 
-        for (auto& pump : mPumps)
+        for (auto& pump : mDosers)
         {
             pump.update(dt);
         }
@@ -88,8 +91,8 @@ public:
 
 private:
     SensorT mSensor;
-    PumpArray mPumps;
-    std::array<float, PumpCount> mPumpRatios{0.0f};
+    DoserArray mDosers;
+    Schedule mDoserSchedule{0.0f};
     Controller::Config mConfig;
     Duration mFromPrevDosing;
 };

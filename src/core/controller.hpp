@@ -12,7 +12,8 @@ namespace Controller
 {
     struct Config
     {
-        std::pair<float, float> targetRange;
+        float targetMin;
+        float targetMax;
         float dosingAmount;
         Duration dosingInterval;
     };

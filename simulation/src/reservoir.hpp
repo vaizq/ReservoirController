@@ -83,6 +83,7 @@ public:
     {
         return mContent;
     }
+
 private:
     float mCapacity;
     Liquid mContent;

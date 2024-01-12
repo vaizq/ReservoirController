@@ -3,8 +3,6 @@
 #include "app_base.hpp"
 #include "reservoir.hpp"
 #include "relative_clock.hpp"
-#include "dt_timer.hpp"
-#include "do_timer.hpp"
 #include "core/ph_controller.hpp"
 #include "core/ec_controller.hpp"
 #include "core/liquid_level_controller.hpp"
@@ -30,8 +28,8 @@ struct Config
 };
 
 
-static constexpr Core::Controller::Config phControllerConfig{{5.8f, 6.2f}, 0.01f, std::chrono::minutes(10)};
-static constexpr Core::Controller::Config ecControllerConfig{{1.0f, 1.2f}, 0.1f, std::chrono::minutes(10)};
+static constexpr Core::Controller::Config phControllerConfig{5.8f, 6.2f, 0.01f, std::chrono::minutes(10)};
+static constexpr Core::Controller::Config ecControllerConfig{1.0f, 1.2f, 0.1f, std::chrono::minutes(10)};
 constexpr size_t nutrientPumpCount{3};
 constexpr std::array<float, nutrientPumpCount> feedingSchedule = {1.0f, 2.0f, 3.0f}; // GHE three part
 
