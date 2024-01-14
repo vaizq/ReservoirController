@@ -35,6 +35,11 @@ public:
         mConfig = config;
     }
 
+    const Config& getConfig() const
+    {
+        return mConfig;
+    }
+
     ValveT& getValve()
     {
         return mValve;

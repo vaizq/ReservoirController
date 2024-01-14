@@ -24,15 +24,16 @@ public:
     using DoserArray = std::array<Doser, PumpCount>;
     using AmountPerLiter = float;
     using Schedule = std::array<AmountPerLiter, PumpCount>;
+    using Config = Controller::Config;
 
 
-    static constexpr Controller::Config defaultConfig()
+    static constexpr Config defaultConfig()
     {
-        return Controller::Config(std::make_pair<float, float>(1.0f, 1.5f), 1.0f, std::chrono::seconds(60));
+        return Config(1.0f, 1.5f, 10.0f, std::chrono::minutes(1));
     }
 
 
-    ECController(SensorT&& sensor, DoserArray&& dosers, const Controller::Config config = defaultConfig())
+    ECController(SensorT&& sensor, DoserArray&& dosers, const Config config = defaultConfig())
     : mSensor(std::forward<SensorT>(sensor)), mDosers(std::move(dosers)), mConfig(config)
     {}
 
@@ -53,9 +54,14 @@ public:
         return mDoserSchedule;
     }
 
-    void setConfig(const Controller::Config& config) 
+    void setConfig(const Config& config) 
     { 
         mConfig = config; 
+    }
+
+    const Config& getConfig() const
+    {
+        return mConfig;
     }
 
     DoserArray& getDosers()

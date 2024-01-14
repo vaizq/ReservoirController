@@ -12,33 +12,36 @@
 
 
 constexpr float flowRate = 1.0f;
-constexpr std::array<float, 3> floweringSchedule = {1.0f, 2.0f, 3.0f}; // GHE 3 part
+constexpr std::array<float, 3> feedingSchedule = {1.0f, 2.0f, 3.0f}; // GHE 3 part
 
 
-// You can select drivers at compile time based on definitions for example
+// Select drivers at compile time based on definition
+#define CULTIMATICS_V_0_1
 
 using Pump =
-#ifdef ESP_PLATFORM
+#ifdef CULTIMATICS_V_0_1 
     Driver::TB6612FNGValve;
+#elif
+    Driver::Valve;
 #endif
 
 using DosingPump = 
-#ifdef ESP_PLATFORM
+#ifdef CULTIMATICS_V_0_1
     Core::DosingPump<Pump>;
 #endif
 
 using LiquidLevelController = 
-#ifdef ESP_PLATFORM
+#ifdef CULTIMATICS_V_0_1
     Core::LiquidLevelController<Driver::LiquidLevelSensor, Driver::Valve>;
 #endif
 
 using PhController = 
-#ifdef ESP_PLATFORM
+#ifdef CULTIMATICS_V_0_1
     Core::PhController<Driver::PhSensor, Pump>;
 #endif
 
 using EcController = 
-#ifdef ESP_PLATFORM
+#ifdef CULTIMATICS_V_0_1
     Core::ECController<Driver::ECSensor, Pump, 3>;
 #endif
 
@@ -53,7 +56,7 @@ void configure(PhController& phController)
 
 void configure(EcController& ecController)
 {
-    ecController.setSchedule(floweringSchedule);
+    ecController.setSchedule(feedingSchedule);
 }
 
 
@@ -82,7 +85,7 @@ extern "C" void app_main(void)
     configure(phController);
     configure(ecController);
 
-    Core::DtTimer<Clock> dtTimer;
+    Core::DtTimer<std::chrono::steady_clock> dtTimer;
 
     while (true)
     {

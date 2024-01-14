@@ -16,22 +16,28 @@ class PhController
 {
 public:
     using Doser = DosingPump<ValveT>;
+    using Config = Controller::Config;
 
-    static constexpr Controller::Config defaultConfig()
+    static constexpr Config defaultConfig()
     {
-        return Controller::Config(std::make_pair<float, float>(5.8f, 6.2f), 1.0f, std::chrono::minutes(1));
+        return Config(5.8f, 6.2f, 1.0f, std::chrono::minutes(1));
     }
 
-    PhController(SensorT&& sensor, Doser&& phDownDoser, const Controller::Config& config = defaultConfig())
+    PhController(SensorT&& sensor, Doser&& phDownDoser, const Config& config = defaultConfig())
     : 
         mSensor{std::move(sensor)}, 
         mPhDownDoser{std::move(phDownDoser)}, 
         mConfig{config}
     {}
 
-    void setConfig(const Controller::Config& config) 
+    void setConfig(const Config& config) 
     { 
         mConfig = config; 
+    }
+
+    const Config& getConfig() const
+    {
+        return mConfig;
     }
 
     Doser& getDoser()
