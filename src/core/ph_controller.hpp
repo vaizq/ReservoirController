@@ -1,7 +1,7 @@
 #pragma once
 
 #include "actuators.hpp"
-#include "controller.hpp"
+#include "controller_config.hpp"
 #include "common.hpp"
 #include "dosing_pump.hpp"
 #include "sensors.hpp"
@@ -53,6 +53,15 @@ public:
     Doser& getDoser()
     {
         return mPhDownDoser;
+    }
+
+    void setTargetPh(float ph)
+    {
+        if (ph >= 0.0f && ph <= 14.0f)
+        {
+            mConfig.targetMin = ph;
+            mConfig.targetMax = ph;
+        }
     }
 
     void update(const Duration dt)

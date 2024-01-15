@@ -1,7 +1,7 @@
 #pragma once
 
 #include "actuators.hpp"
-#include "controller.hpp"
+#include "controller_config.hpp"
 #include "common.hpp"
 #include "dosing_pump.hpp"
 #include "sensors.hpp"
@@ -75,6 +75,15 @@ public:
     DoserArray& getDosers()
     {
         return mDosers;
+    }
+
+    void setTargetEc(float ec)
+    {
+        if (ec >= 0.0f)
+        {
+            mConfig.targetMax = ec;
+            mConfig.targetMin = ec;
+        }
     }
 
     void update(Duration dt)

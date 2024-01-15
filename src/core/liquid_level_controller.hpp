@@ -30,7 +30,6 @@ public:
         mValve.close();
     }
 
-
     void setConfig(const Config& config)
     {
         mConfig = config;
