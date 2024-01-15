@@ -20,7 +20,8 @@ public:
 
     struct Status
     {
-        Duration timeTillRefill;
+        bool levelIsHigh;
+        bool valveIsOpen;
     };
 
     LiquidLevelController(SensorT&& sensor, ValveT&& valve, const Config& config = Config{})
@@ -40,6 +41,11 @@ public:
         return mConfig;
     }
 
+    const Status& getStatus() const
+    {
+        return mStatus;
+    }
+
     ValveT& getValve()
     {
         return mValve;
@@ -47,6 +53,7 @@ public:
 
     void update(const Duration dt)
     {
+        updateStatus(dt);
         updateControl(dt);
     }
 
@@ -66,6 +73,12 @@ private:
             mFromPrevRefill = Duration{0};
         }
     }
+
+    void updateStatus(const Duration)
+    {
+        mStatus = Status {.levelIsHigh = mSensor.liquidIsPresent(), .valveIsOpen = mValve.isOpen()};
+    }
+
 
     SensorT mSensor;
     ValveT mValve;

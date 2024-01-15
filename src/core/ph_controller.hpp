@@ -17,6 +17,11 @@ class PhController
 public:
     using Doser = DosingPump<ValveT>;
     using Config = Controller::Config;
+    struct Status
+    {
+        float ph;
+        bool isDosing;
+    };
 
     static constexpr Config defaultConfig()
     {
@@ -40,12 +45,24 @@ public:
         return mConfig;
     }
 
+    const Status& getStatus() const
+    {
+        return mStatus;
+    }
+
     Doser& getDoser()
     {
         return mPhDownDoser;
     }
 
-    void update(Duration dt)
+    void update(const Duration dt)
+    {
+        updateStatus(dt);
+        updateControl(dt);
+    }
+
+private:
+    void updateControl(const Duration dt)
     {
         mFromLastDose += dt;
         const bool timeToDose = mFromLastDose > mConfig.dosingInterval;
@@ -61,11 +78,16 @@ public:
         mPhDownDoser.update(dt);
     }
 
-private:
+    void updateStatus(const Duration)
+    {
+        mStatus = Status{.ph = mSensor.readPH(), .isDosing = mPhDownDoser.isDosing()};
+    }
+
     SensorT mSensor;
     Doser mPhDownDoser;
     Controller::Config mConfig;
     Duration mFromLastDose;
+    Status mStatus;
 };
 
 }

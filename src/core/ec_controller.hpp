@@ -26,12 +26,16 @@ public:
     using Schedule = std::array<AmountPerLiter, PumpCount>;
     using Config = Controller::Config;
 
+    struct Status
+    {
+        float ec;
+        Schedule schedule;
+    };
 
     static constexpr Config defaultConfig()
     {
         return Config(1.0f, 1.5f, 10.0f, std::chrono::minutes(1));
     }
-
 
     ECController(SensorT&& sensor, DoserArray&& dosers, const Config config = defaultConfig())
     : mSensor(std::forward<SensorT>(sensor)), mDosers(std::move(dosers)), mConfig(config)
@@ -64,12 +68,23 @@ public:
         return mConfig;
     }
 
+    const Status& getStatus() const
+    {
+            }
+
     DoserArray& getDosers()
     {
         return mDosers;
     }
 
     void update(Duration dt)
+    {
+        updateStatus(dt);
+        updateControl(dt);
+    }
+
+private:
+    void updateControl(const Duration dt)
     {
         mFromPrevDosing += dt;
         const bool timeToDose = mFromPrevDosing > mConfig.dosingInterval;
@@ -95,12 +110,17 @@ public:
         }
     }
 
-private:
+    void updateStatus(const Duration dt)
+    {
+        mStatus = Status{.ec = mSensor.readEC(), .schedule = mDoserSchedule};
+    }
+
     SensorT mSensor;
     DoserArray mDosers;
     Schedule mDoserSchedule{0.0f};
     Controller::Config mConfig;
     Duration mFromPrevDosing;
+    Status mStatus;
 };
 
 }
