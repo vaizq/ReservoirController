@@ -1,6 +1,5 @@
 #pragma once
 
-#include "actuators.hpp"
 #include "common.hpp"
 #include "sensors.hpp"
 #include <utility>
@@ -9,7 +8,7 @@
 namespace Core
 {
 
-template <LiquidLevelSensor SensorT, Valve ValveT>
+template <typename SensorT, typename ValveT>
 class LiquidLevelController
 {
 public:
@@ -24,7 +23,12 @@ public:
         bool valveIsOpen;
     };
 
-    LiquidLevelController(SensorT&& sensor, ValveT&& valve, const Config& config = Config{})
+    static constexpr Config defaultConfig()
+    {
+        return Config{};
+    }
+
+    LiquidLevelController(SensorT&& sensor, ValveT&& valve, const Config& config = defaultConfig())
     : mSensor{std::move(sensor)}, mValve{std::move(valve)}, mConfig(std::move(config))
     {
         mValve.close();

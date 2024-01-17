@@ -1,39 +1,23 @@
-#ifndef PH_SENSOR_HPP
-#define PH_SENSOR_HPP
+#pragma once
 
-#include "esp_adc/adc_oneshot.h"
-#include "esp_adc/adc_cali.h"
-
+#include <cstdint>
 
 namespace Driver 
 {
 
-class PhSensor
+class DFRobotV2PHSensor
 {
 public:
-    PhSensor(int pin);
-
-    ~PhSensor();
-
-    PhSensor(const PhSensor&) = delete;
-    PhSensor& operator=(const PhSensor&) = delete;
-    PhSensor(PhSensor&&) = default;
-    PhSensor& operator=(PhSensor&&) = default;
+    DFRobotV2PHSensor(uint8_t pin);
 
     float readPH();
 
     bool calibrate();
 
 private:
-    float readVoltage();
-
-    adc_channel_t mChannel;
-    adc_oneshot_unit_handle_t mHandle;
-    adc_cali_handle_t mCaliHandle;
+    uint8_t mPin;
     float mVoltageAtPh7 = 1500.0f;
     float mVoltageAtPh4 = 2032.44f;
 };
 
 }
-
-#endif

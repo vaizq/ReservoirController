@@ -1,6 +1,6 @@
 #pragma once
 
-#include <driver/gpio.h>
+#include <cstdint>
 
 
 namespace Driver 
@@ -9,10 +9,10 @@ namespace Driver
 class LiquidLevelSensor
 {
 public:
-    LiquidLevelSensor(gpio_num_t pin);
+    LiquidLevelSensor(uint8_t pin);
     bool liquidIsPresent();
 private:
-    gpio_num_t mPin;
+    uint8_t mPin;
 };
 
 }

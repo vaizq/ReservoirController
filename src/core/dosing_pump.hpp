@@ -1,14 +1,13 @@
 #pragma once
 
 #include "common.hpp"
-#include "core/actuators.hpp"
 #include <chrono>
 
 
 namespace Core
 {
 
-template <Valve ValveT>
+template <typename ValveT>
 class DosingPump 
 {
 public:

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "esp_adc/adc_oneshot.h"
-#include "esp_adc/adc_cali.h"
+#include <cstdint>
 
 namespace Driver 
 {
@@ -9,14 +8,10 @@ namespace Driver
 class ECSensor
 {
 public:
-    ECSensor(int pin);
+    ECSensor(uint8_t pin);
     float readEC();
 private:
-    float readVoltage();
-
-    adc_channel_t mChannel;
-    adc_oneshot_unit_handle_t mHandle;
-    adc_cali_handle_t mCaliHandle;
+    uint8_t mPin;
 
 };
 

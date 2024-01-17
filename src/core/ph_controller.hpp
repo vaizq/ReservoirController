@@ -11,8 +11,8 @@
 namespace Core
 {
 
-template <PHSensor SensorT, Valve ValveT>
-class PhController
+template <typename SensorT, typename ValveT>
+class PHController
 {
 public:
     using Doser = DosingPump<ValveT>;
@@ -25,10 +25,10 @@ public:
 
     static constexpr Config defaultConfig()
     {
-        return Config(5.8f, 6.2f, 1.0f, std::chrono::minutes(1));
+        return Config{.targetMin = 5.8f, .targetMax = 6.2f, .dosingAmount = 1.0f, .dosingInterval = std::chrono::minutes(1)};
     }
 
-    PhController(SensorT&& sensor, Doser&& phDownDoser, const Config& config = defaultConfig())
+    PHController(SensorT&& sensor, Doser&& phDownDoser, const Config& config = defaultConfig())
     : 
         mSensor{std::move(sensor)}, 
         mPhDownDoser{std::move(phDownDoser)}, 

@@ -2,7 +2,7 @@
 #define TB6612FNG_MOTOR_HPP 
 
 
-#include <driver/gpio.h>
+#include <cstdint>
 
 
 namespace Driver 
@@ -13,9 +13,9 @@ class TB6612FNGValve
 public:
     struct PinDef 
     {
-        gpio_num_t xIN1;
-        gpio_num_t xIN2;
-        gpio_num_t PWMx;
+        uint8_t xIN1;
+        uint8_t xIN2;
+        uint8_t PWMx;
     };
 
     TB6612FNGValve(const PinDef& pins);

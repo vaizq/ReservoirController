@@ -4,7 +4,7 @@
 #include "core/ph_controller.hpp"
 #include "core/ec_controller.hpp"
 #include "driver/liquid_level_sensor.hpp"
-#include "driver/valve.hpp"
+#include "driver/solenoid_valve.hpp"
 #include "driver/dfrobot_ph_sensor_v2.hpp"
 #include "driver/tb6612fng_valve.hpp"
 #include "driver/ec_sensor.hpp"
@@ -28,18 +28,18 @@ using DosingPump =
 
 using LiquidLevelController = 
 #ifdef CULTIMATICS_V_0_1
-    Core::LiquidLevelController<Driver::LiquidLevelSensor, Driver::Valve>;
+    Core::LiquidLevelController<Driver::LiquidLevelSensor, Driver::SolenoidValve>;
 #endif
 
-using PhController = 
+using PHController = 
 #ifdef CULTIMATICS_V_0_1
-    Core::PhController<Driver::PhSensor, Pump>;
+    Core::PHController<Driver::DFRobotV2PHSensor, Pump>;
 #endif
 
-using EcController = 
+using ECController = 
 #ifdef CULTIMATICS_V_0_1
     Core::ECController<Driver::ECSensor, Pump, 3>;
 #endif
 
 
-using Controller = std::variant<PhController, EcController, LiquidLevelController>;
+using Controller = std::variant<PHController, ECController, LiquidLevelController>;

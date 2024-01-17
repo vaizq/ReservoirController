@@ -1,14 +1,14 @@
 #include "liquid_level_sensor.hpp"
+#include <Arduino.h>
 
 
-Driver::LiquidLevelSensor::LiquidLevelSensor(gpio_num_t pin)
-    : mPin(pin)
+Driver::LiquidLevelSensor::LiquidLevelSensor(uint8_t pin)
+: mPin{pin}
 {
-    gpio_set_direction(mPin, GPIO_MODE_INPUT);
-    gpio_set_pull_mode(mPin, GPIO_FLOATING);
+    pinMode(mPin, INPUT);
 }
 
 bool Driver::LiquidLevelSensor::liquidIsPresent()
 {
-    return gpio_get_level(mPin) == 1;
+    return digitalRead(mPin) == HIGH; 
 }

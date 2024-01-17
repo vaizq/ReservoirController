@@ -27,7 +27,7 @@ public:
     }
 private:
     Clock mClock;
-    Clock::time_point mLastTick;
+    typename Clock::time_point mLastTick;
     bool mInitialized{false};
 };
 

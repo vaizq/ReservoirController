@@ -1,21 +1,21 @@
 #pragma once
 
-#include <driver/gpio.h>
+#include <cstdint>
 
 namespace Driver 
 {
 
-class Valve 
+class SolenoidValve 
 {
 public:
-    Valve(gpio_num_t pin);
-    ~Valve();
+    SolenoidValve(uint8_t pin);
+    ~SolenoidValve();
 
     void open();
     void close();
     bool isOpen() const;
 private:
-    gpio_num_t mPin;
+    uint8_t mPin;
     bool mIsOpen;
 };
 

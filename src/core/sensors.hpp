@@ -1,4 +1,5 @@
 #pragma once
+/*
 #include <concepts>
 
 
@@ -21,3 +22,4 @@ concept ECSensor = requires(T sensor)
 {
     { sensor.readEC() } -> std::convertible_to<float>;
 };
+*/

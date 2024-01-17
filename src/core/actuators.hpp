@@ -1,5 +1,6 @@
 #pragma once
 
+/*
 #include <concepts>
 #include "common.hpp"
 
@@ -11,3 +12,4 @@ concept Valve = requires(T valve)
     { valve.close() };
     { valve.isOpen() } -> std::convertible_to<bool>;
 };
+*/

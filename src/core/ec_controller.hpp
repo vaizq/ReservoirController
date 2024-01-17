@@ -1,6 +1,5 @@
 #pragma once
 
-#include "actuators.hpp"
 #include "controller_config.hpp"
 #include "common.hpp"
 #include "dosing_pump.hpp"
@@ -9,14 +8,13 @@
 #include <array>
 #include <chrono>
 #include <algorithm>
-#include <ranges>
 #include <numeric>
 
 
 namespace Core
 {
 
-template<ECSensor SensorT, Valve ValveT, size_t PumpCount>
+template<typename SensorT, typename ValveT, size_t PumpCount>
 class ECController
 {
 public:
@@ -34,7 +32,7 @@ public:
 
     static constexpr Config defaultConfig()
     {
-        return Config(1.0f, 1.5f, 10.0f, std::chrono::minutes(1));
+        return Config{.targetMin = 1.0f, .targetMax = 1.5f, .dosingAmount = 10.0f, .dosingInterval = std::chrono::minutes(1)};
     }
 
     ECController(SensorT&& sensor, DoserArray&& dosers, const Config config = defaultConfig())
