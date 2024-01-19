@@ -25,7 +25,7 @@ public:
 
     static constexpr Config defaultConfig()
     {
-        return Config{.targetMin = 5.8f, .targetMax = 6.2f, .dosingAmount = 1.0f, .dosingInterval = std::chrono::minutes(1)};
+        return Config{.targetMin = 5.8f, .targetMax = 6.2f, .dosingAmount = 1.0f, .dosingInterval = std::chrono::seconds(10)};
     }
 
     PHController(SensorT&& sensor, Doser&& phDownDoser, const Config& config = defaultConfig())
@@ -33,7 +33,41 @@ public:
         mSensor{std::move(sensor)}, 
         mPhDownDoser{std::move(phDownDoser)}, 
         mConfig{config}
-    {}
+    {
+        start();
+    }
+
+    void start()
+    {
+        closeValves();
+        mRunning = true;
+    }
+
+    void stop()
+    {
+        mRunning = false;
+    }
+
+    bool isRunning() const
+    {
+        return mRunning;
+    }
+
+    void openValves()
+    {
+        if (isRunning())
+            return;
+
+        mPhDownDoser.getValve().open();
+    }
+
+    void closeValves()
+    {
+        if (isRunning())
+            return;
+
+        mPhDownDoser.getValve().close();
+    }
 
     void setConfig(const Config& config) 
     { 
@@ -67,7 +101,9 @@ public:
     void update(const Duration dt)
     {
         updateStatus(dt);
-        updateControl(dt);
+
+        if (mRunning)
+            updateControl(dt);
     }
 
 private:
@@ -80,8 +116,8 @@ private:
 
         if (timeToDose && ph > mConfig.targetMax)
         {
-            mPhDownDoser.dose(mConfig.dosingAmount);
             mFromLastDose = Duration(0);
+            mPhDownDoser.dose(mConfig.dosingAmount);
         }
 
         mPhDownDoser.update(dt);
@@ -97,6 +133,7 @@ private:
     Controller::Config mConfig;
     Duration mFromLastDose;
     Status mStatus;
+    bool mRunning;
 };
 
 }

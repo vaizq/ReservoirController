@@ -36,8 +36,51 @@ public:
     }
 
     ECController(SensorT&& sensor, DoserArray&& dosers, const Config config = defaultConfig())
-    : mSensor(std::forward<SensorT>(sensor)), mDosers(std::move(dosers)), mConfig(config)
-    {}
+    : 
+        mSensor(std::forward<SensorT>(sensor)), 
+        mDosers(std::move(dosers)), 
+        mConfig(config)
+    {
+        start();
+    }
+
+    void start()
+    {
+        closeValves();
+        mRunning = true;
+    }
+
+    void stop()
+    {
+        mRunning = false;
+    }
+
+    bool isRunning() const
+    {
+        return mRunning;
+    }
+
+    void openValves()
+    {
+        if (isRunning())
+            return;
+
+        for (Doser& doser : mDosers)
+        {
+            doser.getValve().open();
+        }
+    }
+
+    void closeValves()
+    {
+        if (isRunning())
+            return;
+
+        for (Doser& doser : mDosers)
+        {
+            doser.getValve().close();
+        }
+    }
 
     void setSchedule(const Schedule& schedule)
     {
@@ -68,7 +111,8 @@ public:
 
     const Status& getStatus() const
     {
-            }
+        return mStatus;
+    }
 
     DoserArray& getDosers()
     {
@@ -87,7 +131,8 @@ public:
     void update(Duration dt)
     {
         updateStatus(dt);
-        updateControl(dt);
+        if (mRunning)
+            updateControl(dt);
     }
 
 private:
@@ -128,6 +173,7 @@ private:
     Controller::Config mConfig;
     Duration mFromPrevDosing;
     Status mStatus;
+    bool mRunning;
 };
 
 }

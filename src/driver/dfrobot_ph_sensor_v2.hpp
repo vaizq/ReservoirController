@@ -16,8 +16,8 @@ public:
 
 private:
     uint8_t mPin;
-    float mVoltageAtPh7 = 1500.0f;
-    float mVoltageAtPh4 = 2032.44f;
+    float mVoltageAtPh7 = 1.50f;
+    float mVoltageAtPh4 = 2.03244f;
 };
 
 }

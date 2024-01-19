@@ -12,6 +12,7 @@
 #include "app.hpp"
 #include <delay.hpp>
 #include <Arduino.h>
+#include <ezButton.h>
 
 
 constexpr float flowRate = 1.0f;
@@ -42,13 +43,12 @@ App<3> app{std::move(controllers)};
 void setup()
 {
     Serial.begin(115200);
+    pinMode(33, INPUT_PULLUP);
 }
 
-
 Core::DtTimer<> timer;
-
 void loop()
 {
     app.update(timer.tick());
-    Cultimatic::delay(1000ms);
+    Cultimatic::delay(1ms);
 }

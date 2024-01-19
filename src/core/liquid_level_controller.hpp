@@ -14,7 +14,7 @@ class LiquidLevelController
 public:
     struct Config
     {
-        Duration refillInterval = std::chrono::minutes(10);
+        Duration refillInterval = std::chrono::milliseconds(1);
     };
 
     struct Status
@@ -29,8 +29,44 @@ public:
     }
 
     LiquidLevelController(SensorT&& sensor, ValveT&& valve, const Config& config = defaultConfig())
-    : mSensor{std::move(sensor)}, mValve{std::move(valve)}, mConfig(std::move(config))
+    : 
+        mSensor{std::move(sensor)}, 
+        mValve{std::move(valve)}, 
+        mConfig(std::move(config))
     {
+        mValve.close();
+        start();
+    }
+
+    void start()
+    {
+        closeValves();
+        mRunning = true;
+    }
+
+    void stop()
+    {
+        mRunning = false;
+    }
+
+    bool isRunning() const
+    {
+        return mRunning;
+    }
+
+    void openValves()
+    {
+        if (isRunning())
+            return;
+
+        mValve.open();
+    }
+
+    void closeValves()
+    {
+        if (isRunning())
+            return;
+
         mValve.close();
     }
 
@@ -57,7 +93,8 @@ public:
     void update(const Duration dt)
     {
         updateStatus(dt);
-        updateControl(dt);
+        if (mRunning)
+            updateControl(dt);
     }
 
 private:
@@ -88,6 +125,7 @@ private:
     Config mConfig;
     Duration mFromPrevRefill;
     Status mStatus;
+    bool mRunning;
 };
 
 }
