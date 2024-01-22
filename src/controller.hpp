@@ -39,7 +39,7 @@ using PHController =
 
 using ECController = 
 #ifdef CULTIMATICS_V_0_1
-    Core::ECController<Driver::ECSensor, Pump, 3>;
+    Core::ECController<Driver::ECSensor, Pump, Config::PumpCount, 3>;
 #endif
 
 

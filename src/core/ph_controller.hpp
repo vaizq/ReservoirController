@@ -28,10 +28,10 @@ public:
 
     static constexpr Config defaultConfig()
     {
-        return Config{.targetMin = 5.8f, .targetMax = 6.2f, .dosingAmount = 1.0f, .dosingInterval = std::chrono::seconds(10)};
+        return Config{.targetMin = 5.8f, .targetMax = 6.2f, .dosingAmount = 1.0f, .dosingInterval = std::chrono::seconds(100)};
     }
 
-    PHController(SensorT&& sensor, DoserManager<ValveT, N>& doserManager, typename Dosers::DoserID doserID, const Config& config = defaultConfig())
+    PHController(SensorT&& sensor, Dosers& doserManager, typename Dosers::DoserID doserID, const Config& config = defaultConfig())
     : 
         mSensor{std::move(sensor)}, 
         mDoserManager{doserManager}, 
@@ -75,9 +75,9 @@ public:
         }
     }
 
-    float ph()
+    float ph() const
     {
-        return mSensor.readPH();
+        return mPh;
     }
 
     void update(const Duration dt)
@@ -92,7 +92,7 @@ private:
         mFromLastDose += dt;
         const bool timeToDose = mFromLastDose > mConfig.dosingInterval;
 
-        const float ph{mSensor.readPH()};
+        mPh = (mSensor.readPH() + mPh) / 2.0f;
 
         if (timeToDose && ph > mConfig.targetMax)
         {
@@ -105,9 +105,10 @@ private:
     Dosers& mDoserManager;
     const typename Dosers::DoserID mPHDownDoser;
     Controller::Config mConfig;
-    Duration mFromLastDose;
+    Duration mFromLastDose{0};
     Status mStatus;
     bool mRunning;
+    float mPh{7.0f};
 };
 
 }

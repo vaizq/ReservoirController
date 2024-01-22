@@ -7,12 +7,12 @@
 #include <Arduino.h>
 #include <ezButton.h>
 #include "pin_config.hpp"
+#include <chrono>
 
 
 using namespace std::chrono_literals;
 
 
-constexpr std::array<float, 3> feedingSchedule = {1.0f, 2.0f, 3.0f}; // GHE 3 part
 
 void printStatus(LiquidLevelController& controller)
 {
@@ -20,10 +20,16 @@ void printStatus(LiquidLevelController& controller)
 
 void printStatus(PHController& controller)
 {
+    float ph = controller.ph();
+    Serial.print("PH: ");
+    Serial.println(ph);
 }
 
 void printStatus(ECController& controller)
 {
+    auto status = controller.getStatus();
+    Serial.print("EC: ");
+    Serial.println(status.ec);
 }
 
 
@@ -35,8 +41,6 @@ public:
     App(std::array<Controller, N>&& controllers)
     : mControllers(std::move(controllers)), mButton{Config::buttonPin, INPUT_PULLUP}
     {
-        auto* c = get<ECController>();
-        c->setSchedule(feedingSchedule);
     }
 
     void update(const Duration dt)
@@ -80,12 +84,10 @@ public:
 
             for (Controller& c : mControllers)
             {
-                if (auto* p = std::get_if<PHController>(&c))
+                std::visit([](auto& controller) 
                 {
-                    const float ph = p->ph();
-                    Serial.print("PH: ");
-                    Serial.println(ph);
-                }
+                    printStatus(controller);
+                }, c);
             }
         }
         mFromStatusPrint += dt;

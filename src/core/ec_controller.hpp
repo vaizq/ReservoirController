@@ -4,49 +4,51 @@
 #include "common.hpp"
 #include "dosing_pump.hpp"
 #include "sensors.hpp"
+#include "doser_manager.hpp"
 
 #include <array>
 #include <chrono>
 #include <algorithm>
 #include <numeric>
+#include <Arduino.h>
 
 
 namespace Core
 {
 
-template<typename SensorT, typename ValveT, size_t PumpCount>
+template<typename SensorT, typename ValveT, size_t TotalDoserCount, size_t NutrientDoserCount>
 class ECController
 {
 public:
-    using Doser = DosingPump<ValveT>;
-    using DoserArray = std::array<Doser, PumpCount>;
+    using Dosers = DoserManager<ValveT, TotalDoserCount>;
     using AmountPerLiter = float;
-    using Schedule = std::array<AmountPerLiter, PumpCount>;
+    using NutrientSchedule = std::array<std::pair<typename Dosers::DoserID, AmountPerLiter>, NutrientDoserCount>;
     using Config = Controller::Config;
 
     struct Status
     {
         float ec;
-        Schedule schedule;
+        NutrientSchedule schedule;
     };
 
     static constexpr Config defaultConfig()
     {
-        return Config{.targetMin = 1.0f, .targetMax = 1.5f, .dosingAmount = 10.0f, .dosingInterval = std::chrono::minutes(1)};
+        return Config{.targetMin = 1.0f, .targetMax = 1.5f, .dosingAmount = 10.0f, .dosingInterval = std::chrono::seconds(60)};
     }
 
-    ECController(SensorT&& sensor, DoserArray&& dosers, const Config config = defaultConfig())
+    ECController(SensorT&& sensor, Dosers& dosers, NutrientSchedule schedule, const Config config = defaultConfig())
     : 
         mSensor(std::forward<SensorT>(sensor)), 
-        mDosers(std::move(dosers)), 
+        mDosers(dosers), 
+        mSchedule{std::move(schedule)},
         mConfig(config)
     {
+        mTotalAmount = totalAmount(mSchedule);
         start();
     }
 
     void start()
     {
-        closeValves();
         mRunning = true;
     }
 
@@ -60,43 +62,15 @@ public:
         return mRunning;
     }
 
-    void openValves()
+    void setSchedule(NutrientSchedule schedule)
     {
-        if (isRunning())
-            return;
-
-        for (Doser& doser : mDosers)
-        {
-            doser.getValve().open();
-        }
+        mSchedule = std::move(schedule);
+        mTotalAmount = totalAmount(mSchedule);
     }
 
-    void closeValves()
+    const NutrientSchedule& getSchedule()
     {
-        if (isRunning())
-            return;
-
-        for (Doser& doser : mDosers)
-        {
-            doser.getValve().close();
-        }
-    }
-
-    void setSchedule(const Schedule& schedule)
-    {
-        const AmountPerLiter amountTotal = std::accumulate(
-            schedule.begin(), schedule.end(), 
-            0.0f, [&schedule](float total, AmountPerLiter amount) { return total + amount; });
-
-        for (int i = 0; i < PumpCount; i++)
-        {
-            mDoserSchedule[i] = schedule[i] / amountTotal;
-        }
-    }
-
-    const Schedule& getSchedule()
-    {
-        return mDoserSchedule;
+        return mSchedule;
     }
 
     void setConfig(const Config& config) 
@@ -112,11 +86,6 @@ public:
     const Status& getStatus() const
     {
         return mStatus;
-    }
-
-    DoserArray& getDosers()
-    {
-        return mDosers;
     }
 
     void setTargetEc(float ec)
@@ -144,36 +113,37 @@ private:
         const float ec = mSensor.readEC();
 
         // Check if it's timeToDose, EC is too low and none of the pumps are dosing
-        if (timeToDose && ec < mConfig.targetMin && 
-            std::find_if(mDosers.begin(), mDosers.end(), [](const auto& pump) { return pump.isDosing(); }) == std::end(mDosers))
+        if (timeToDose && ec < mConfig.targetMin)
         {
-            for (int i = 0; i < PumpCount; i++)
-            {
-                const float amount = mDoserSchedule[i] * mConfig.dosingAmount; 
-                mDosers[i].dose(amount);
-            }
-
             mFromPrevDosing = Duration{0};
-        }
 
-        for (auto& pump : mDosers)
-        {
-            pump.update(dt);
+            for (const auto& nutrientPump : mSchedule)
+            {
+                const float amount = nutrientPump.second / mTotalAmount * mConfig.dosingAmount;
+                const auto id = nutrientPump.first;
+                mDosers.queueDose(id, amount);
+            }
         }
     }
 
     void updateStatus(const Duration dt)
     {
-        mStatus = Status{.ec = mSensor.readEC(), .schedule = mDoserSchedule};
+        mStatus = Status{.ec = mSensor.readEC(), .schedule = mSchedule};
+    }
+
+    float totalAmount(const NutrientSchedule& schedule)
+    {
+        return std::accumulate(schedule.begin(), schedule.end(), 0.0f, [](float total, const auto& nutrientPump) { return total + nutrientPump.first; });
     }
 
     SensorT mSensor;
-    DoserArray mDosers;
-    Schedule mDoserSchedule{0.0f};
+    Dosers& mDosers;
+    NutrientSchedule mSchedule;
     Controller::Config mConfig;
     Duration mFromPrevDosing;
     Status mStatus;
     bool mRunning;
+    AmountPerLiter mTotalAmount;
 };
 
 }

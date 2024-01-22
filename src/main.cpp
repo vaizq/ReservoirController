@@ -19,13 +19,13 @@
 #include <optional>
 
 constexpr float flowRate = 1.0f;
-
+constexpr ECController::NutrientSchedule feedingSchedule = {std::make_pair<int, float>(1, 1.0f), std::make_pair<int, float>(2, 2.0f), std::make_pair<int, float>(3, 3.0f)}; // GHE 3 part
 
 std::array<DosingPump, 4> dosers{
     DosingPump{Pump{Config::nutrientPumpDefs[0]}, flowRate}, 
     DosingPump{Pump{Config::nutrientPumpDefs[1]}, flowRate},
     DosingPump{Pump{Config::nutrientPumpDefs[2]}, flowRate},
-    DosingPump{Pump{Config::nutrientPumpDefs[3]}, flowRate}
+    DosingPump{Pump{Config::phDownPumpDef}, flowRate}
 };
 
 
@@ -44,11 +44,8 @@ std::array<Controller, 3> controllers = {
     },
     ECController{
         Driver::ECSensor{Config::ecSensorPin},
-        {
-            DosingPump{Pump{Config::nutrientPumpDefs[0]}, flowRate}, 
-            DosingPump{Pump{Config::nutrientPumpDefs[1]}, flowRate},
-            DosingPump{Pump{Config::nutrientPumpDefs[2]}, flowRate}
-        }
+        doserManager,
+        feedingSchedule
     }
 };
 
