@@ -68,10 +68,10 @@ public:
         {
             for (Controller& c : mControllers)
             {
-                if (auto* p = std::get_if<PHController>(c))
+                if (auto* p = std::get_if<PHController>(&c))
                 {
-                    controller.stop();
-                    controller.openValves();
+                    p->stop();
+                    p->openValves();
                 }
             }
         }
@@ -81,10 +81,10 @@ public:
             // Start controllers
             for (Controller& c : mControllers)
             {
-                if (auto* p = std::get_if<PHController>(c))
+                if (auto* p = std::get_if<PHController>(&c))
                 {
-                    controller.closeValves();
-                    controller.start();
+                    p->closeValves();
+                    p->start();
                 } 
             }
         }
@@ -92,7 +92,7 @@ public:
         if (mFromStatusPrint > 1000ms)
         {
             mFromStatusPrint = 0ms;
-            // Start controllers
+
             for (Controller& c : mControllers)
             {
                 std::visit([](auto& controller)

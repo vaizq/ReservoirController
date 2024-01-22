@@ -13,6 +13,8 @@
 #include <delay.hpp>
 #include <Arduino.h>
 #include <ezButton.h>
+#include <Wire.h>
+#include <DFRobot_RGBLCD1602.h>
 
 
 constexpr float flowRate = 1.0f;
@@ -39,16 +41,15 @@ std::array<Controller, 3> controllers = {
 
 App<3> app{std::move(controllers)};
 
-
 void setup()
 {
     Serial.begin(115200);
-    pinMode(33, INPUT_PULLUP);
 }
 
+
 Core::DtTimer<> timer;
+
 void loop()
 {
     app.update(timer.tick());
-    Cultimatic::delay(1ms);
 }

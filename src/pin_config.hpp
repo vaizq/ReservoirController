@@ -16,11 +16,11 @@ constexpr TB6612FNGValve::PinDef phDownPumpDef = {.xIN1 = 4, .xIN2 = 5, .PWMx = 
 constexpr std::array<TB6612FNGValve::PinDef, 3> nutrientPumpDefs = 
     {
         TB6612FNGValve::PinDef{.xIN1 = 15, .xIN2 = 16, .PWMx = 17}, // 2A
-        TB6612FNGValve::PinDef{.xIN1 = 18, .xIN2 = 19, .PWMx = 21}, // 2B
+        TB6612FNGValve::PinDef{.xIN1 = 18, .xIN2 = 19, .PWMx = 26}, // 2B
         TB6612FNGValve::PinDef{.xIN1 = 12, .xIN2 = 13, .PWMx = 14} // 1B
     };
 
-constexpr uint8_t valveSwitchPin = 22;
+constexpr uint8_t valveSwitchPin = 27;
 constexpr uint8_t liquidLevelTopSensorPin = 32;
 constexpr uint8_t liquidLevelBottomSensorPin = 35;
 constexpr uint8_t phSensorPin = 34;
