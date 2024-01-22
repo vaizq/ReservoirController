@@ -10,14 +10,26 @@
 #include "pin_config.hpp"
 #include "controller.hpp"
 #include "app.hpp"
+#include "core/doser_manager.hpp"
 #include <delay.hpp>
 #include <Arduino.h>
 #include <ezButton.h>
 #include <Wire.h>
 #include <DFRobot_RGBLCD1602.h>
-
+#include <optional>
 
 constexpr float flowRate = 1.0f;
+
+
+std::array<DosingPump, 4> dosers{
+    DosingPump{Pump{Config::nutrientPumpDefs[0]}, flowRate}, 
+    DosingPump{Pump{Config::nutrientPumpDefs[1]}, flowRate},
+    DosingPump{Pump{Config::nutrientPumpDefs[2]}, flowRate},
+    DosingPump{Pump{Config::nutrientPumpDefs[3]}, flowRate}
+};
+
+
+DoserManager<Pump, 4> doserManager{std::move(dosers), 1};
 
 
 std::array<Controller, 3> controllers = {
@@ -27,7 +39,8 @@ std::array<Controller, 3> controllers = {
     },
     PHController{
         Driver::DFRobotV2PHSensor{Config::phSensorPin}, 
-        DosingPump{Pump{Config::phDownPumpDef}, flowRate}
+        doserManager,
+        0
     },
     ECController{
         Driver::ECSensor{Config::ecSensorPin},
@@ -39,6 +52,7 @@ std::array<Controller, 3> controllers = {
     }
 };
 
+
 App<3> app{std::move(controllers)};
 
 void setup()
@@ -46,10 +60,13 @@ void setup()
     Serial.begin(115200);
 }
 
-
 Core::DtTimer<> timer;
 
 void loop()
 {
-    app.update(timer.tick());
+    const auto dt = timer.tick();
+    app.update(dt);
+    doserManager.update(dt);
+    delay(1);
 }
+

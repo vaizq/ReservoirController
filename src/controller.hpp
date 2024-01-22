@@ -8,6 +8,7 @@
 #include "driver/dfrobot_ph_sensor_v2.hpp"
 #include "driver/tb6612fng_valve.hpp"
 #include "driver/ec_sensor.hpp"
+#include "pin_config.hpp"
 #include <variant>
 
 
@@ -33,7 +34,7 @@ using LiquidLevelController =
 
 using PHController = 
 #ifdef CULTIMATICS_V_0_1
-    Core::PHController<Driver::DFRobotV2PHSensor, Pump>;
+    Core::PHController<Driver::DFRobotV2PHSensor, Pump, Config::PumpCount>;
 #endif
 
 using ECController = 

@@ -27,4 +27,6 @@ constexpr uint8_t phSensorPin = 34;
 constexpr uint8_t ecSensorPin = 36;
 constexpr uint8_t buttonPin = 33;
 
+constexpr size_t PumpCount = 4;
+
 }

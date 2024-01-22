@@ -5,18 +5,21 @@
 #include "common.hpp"
 #include "dosing_pump.hpp"
 #include "sensors.hpp"
+#include "doser_manager.hpp"
 #include <chrono>
 
 
 namespace Core
 {
 
-template <typename SensorT, typename ValveT>
+template <typename SensorT, typename ValveT, size_t N>
 class PHController
 {
 public:
     using Doser = DosingPump<ValveT>;
+    using Dosers = DoserManager<ValveT, N>;
     using Config = Controller::Config;
+
     struct Status
     {
         float ph;
@@ -28,10 +31,11 @@ public:
         return Config{.targetMin = 5.8f, .targetMax = 6.2f, .dosingAmount = 1.0f, .dosingInterval = std::chrono::seconds(10)};
     }
 
-    PHController(SensorT&& sensor, Doser&& phDownDoser, const Config& config = defaultConfig())
+    PHController(SensorT&& sensor, DoserManager<ValveT, N>& doserManager, typename Dosers::DoserID doserID, const Config& config = defaultConfig())
     : 
         mSensor{std::move(sensor)}, 
-        mPhDownDoser{std::move(phDownDoser)}, 
+        mDoserManager{doserManager}, 
+        mPHDownDoser{doserID},
         mConfig{config}
     {
         start();
@@ -39,7 +43,6 @@ public:
 
     void start()
     {
-        closeValves();
         mRunning = true;
     }
 
@@ -53,22 +56,6 @@ public:
         return mRunning;
     }
 
-    void openValves()
-    {
-        if (isRunning())
-            return;
-
-        mPhDownDoser.getValve().open();
-    }
-
-    void closeValves()
-    {
-        if (isRunning())
-            return;
-
-        mPhDownDoser.getValve().close();
-    }
-
     void setConfig(const Config& config) 
     { 
         mConfig = config; 
@@ -77,16 +64,6 @@ public:
     const Config& getConfig() const
     {
         return mConfig;
-    }
-
-    const Status& getStatus() const
-    {
-        return mStatus;
-    }
-
-    Doser& getDoser()
-    {
-        return mPhDownDoser;
     }
 
     void setTargetPh(float ph)
@@ -98,10 +75,13 @@ public:
         }
     }
 
+    float ph()
+    {
+        return mSensor.readPH();
+    }
+
     void update(const Duration dt)
     {
-        updateStatus(dt);
-
         if (mRunning)
             updateControl(dt);
     }
@@ -117,19 +97,13 @@ private:
         if (timeToDose && ph > mConfig.targetMax)
         {
             mFromLastDose = Duration(0);
-            mPhDownDoser.dose(mConfig.dosingAmount);
+            mDoserManager.queueDose(mPHDownDoser, mConfig.dosingAmount);
         }
-
-        mPhDownDoser.update(dt);
-    }
-
-    void updateStatus(const Duration)
-    {
-        mStatus = Status{.ph = mSensor.readPH(), .isDosing = mPhDownDoser.isDosing()};
     }
 
     SensorT mSensor;
-    Doser mPhDownDoser;
+    Dosers& mDoserManager;
+    const typename Dosers::DoserID mPHDownDoser;
     Controller::Config mConfig;
     Duration mFromLastDose;
     Status mStatus;

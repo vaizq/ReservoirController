@@ -16,27 +16,14 @@ constexpr std::array<float, 3> feedingSchedule = {1.0f, 2.0f, 3.0f}; // GHE 3 pa
 
 void printStatus(LiquidLevelController& controller)
 {
-    auto& status = controller.getStatus();
-    Serial.print("Level is ");
-    Serial.println(status.levelIsHigh ? "high" : "low");
-    Serial.print("Valve is ");
-    Serial.println(status.valveIsOpen ? "open" : "closed");
 }
 
 void printStatus(PHController& controller)
 {
-    auto& status = controller.getStatus();
-    Serial.print("PH is ");
-    Serial.println(status.ph);
-    Serial.print("Pump is ");
-    Serial.println(status.isDosing ? "on" : "off");
 }
 
 void printStatus(ECController& controller)
 {
-    auto& status = controller.getStatus();
-    Serial.print("EC is ");
-    Serial.println(status.ec);
 }
 
 
@@ -71,7 +58,6 @@ public:
                 if (auto* p = std::get_if<PHController>(&c))
                 {
                     p->stop();
-                    p->openValves();
                 }
             }
         }
@@ -83,7 +69,6 @@ public:
             {
                 if (auto* p = std::get_if<PHController>(&c))
                 {
-                    p->closeValves();
                     p->start();
                 } 
             }
@@ -95,12 +80,12 @@ public:
 
             for (Controller& c : mControllers)
             {
-                std::visit([](auto& controller)
+                if (auto* p = std::get_if<PHController>(&c))
                 {
-                    printStatus(controller);
-                    Serial.println("-------");
-                }, c);
-                Serial.println("========");
+                    const float ph = p->ph();
+                    Serial.print("PH: ");
+                    Serial.println(ph);
+                }
             }
         }
         mFromStatusPrint += dt;
