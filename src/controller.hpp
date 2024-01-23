@@ -9,7 +9,7 @@
 #include "driver/dfrobot_ph_sensor_v2.hpp"
 #include "driver/tb6612fng_valve.hpp"
 #include "driver/ec_sensor.hpp"
-#include "pin_config.hpp"
+#include "config.hpp"
 #include <variant>
 
 

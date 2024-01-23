@@ -1,25 +1,22 @@
-#include "core/dt_timer.hpp"
-#include "core/liquid_level_controller.hpp"
-#include "core/ph_controller.hpp"
-#include "core/ec_controller.hpp"
-#include "driver/liquid_level_sensor.hpp"
-#include "driver/solenoid_valve.hpp"
-#include "driver/dfrobot_ph_sensor_v2.hpp"
-#include "driver/tb6612fng_valve.hpp"
-#include "driver/ec_sensor.hpp"
-#include "pin_config.hpp"
-#include "controller.hpp"
 #include "app.hpp"
-#include <delay.hpp>
+#include "controller.hpp"
+#include "core/dt_timer.hpp"
+#include "config.hpp"
 #include <Arduino.h>
-#include <ezButton.h>
-#include <Wire.h>
-#include <optional>
 
+
+constexpr DoserManager::DoserID phDown{0};
+constexpr DoserManager::DoserID grow{1};
+constexpr DoserManager::DoserID micro{2};
+constexpr DoserManager::DoserID bloom{3};
 
 constexpr float flowRate = 1.0f;
-constexpr ECController::NutrientSchedule feedingSchedule = {std::make_pair<int, float>(1, 1.0f), std::make_pair<int, float>(2, 2.0f), std::make_pair<int, float>(3, 3.0f)}; // GHE 3 part
 
+constexpr ECController::NutrientSchedule ghe3part = {
+    std::make_pair<int, float>(grow, 1.0f), 
+    std::make_pair<int, float>(micro, 2.0f), 
+    std::make_pair<int, float>(bloom, 3.0f)
+};
 
 std::array<DosingPump, 4> dosers{
     DosingPump{Pump{Config::doserDefs[0]}, flowRate}, 
@@ -28,9 +25,7 @@ std::array<DosingPump, 4> dosers{
     DosingPump{Pump{Config::doserDefs[3]}, flowRate}
 };
 
-
 DoserManager doserManager{std::move(dosers), 1};
-
 
 std::array<Controller, 3> controllers = {
     LiquidLevelController{ 
@@ -45,17 +40,21 @@ std::array<Controller, 3> controllers = {
     ECController{
         Driver::ECSensor{Config::ecSensorPin},
         doserManager,
-        feedingSchedule
+        ECController::Config{
+            .target = 1.0f, 
+            .dosingAmount = 10.0f, 
+            .dosingInterval = std::chrono::seconds(60), 
+            .schedule = ghe3part
+        } 
     }
 };
-
 
 App<3> app{std::move(controllers), doserManager};
 
 void setup()
 {
     Serial.begin(115200);
-    app.init();
+    app.initLCD();
 }
 
 Core::DtTimer<> timer;

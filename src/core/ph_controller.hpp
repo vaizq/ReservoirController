@@ -1,13 +1,10 @@
 #pragma once
 
 #include "actuators.hpp"
-#include "controller_config.hpp"
 #include "common.hpp"
 #include "dosing_pump.hpp"
-#include "sensors.hpp"
 #include "doser_manager.hpp"
 #include <chrono>
-#include <Arduino.h>
 
 
 namespace Core
@@ -22,9 +19,9 @@ public:
 
     struct Config
     {
-        float targetMax = 6.2f;
+        float target = 6.2f;
         float dosingAmount = 1.0f;
-        Duration dosingInterval = std::chrono::seconds(50);
+        Duration dosingInterval = std::chrono::seconds(60);
     };
 
     struct Status
@@ -34,7 +31,7 @@ public:
 
     static constexpr Config defaultConfig()
     {
-        return Config{.targetMax = 6.2f, .dosingAmount = 1.0f, .dosingInterval = std::chrono::seconds(50)};
+        return Config{.target = 6.2f, .dosingAmount = 1.0f, .dosingInterval = std::chrono::seconds(50)};
     }
 
     PHController(SensorT&& sensor, Dosers& doserManager, typename Dosers::DoserID doserID, const Config& config = defaultConfig())
@@ -91,7 +88,7 @@ private:
 
         mStatus.ph = mSensor.readPH();
 
-        if (timeToDose && mStatus.ph > mConfig.targetMax)
+        if (timeToDose && mStatus.ph > mConfig.target)
         {
             mFromLastDose = Duration(0);
             mDosers.queueDose(mDownDoser, mConfig.dosingAmount);
@@ -101,7 +98,7 @@ private:
     SensorT mSensor;
     Dosers& mDosers;
     const typename Dosers::DoserID mDownDoser;
-    Controller::Config mConfig;
+    Config mConfig;
     Status mStatus;
     Duration mFromLastDose{0};
     bool mRunning;

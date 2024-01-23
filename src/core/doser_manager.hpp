@@ -77,6 +77,11 @@ public:
 
     void reset()
     {
+        for (auto& d : mDosers)
+        {
+            d.reset();
+        }
+
         mActiveDoses.clear();
 
         while(!mPendingDoses.empty())

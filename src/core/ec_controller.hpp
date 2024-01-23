@@ -1,16 +1,12 @@
 #pragma once
 
-#include "controller_config.hpp"
 #include "common.hpp"
 #include "dosing_pump.hpp"
-#include "sensors.hpp"
 #include "doser_manager.hpp"
-
 #include <array>
-#include <chrono>
 #include <algorithm>
+#include <chrono>
 #include <numeric>
-#include <Arduino.h>
 
 
 namespace Core
@@ -92,14 +88,14 @@ private:
 
         mStatus.ec = mSensor.readEC();
 
-        if (timeToDose && mStatus.ec < mConfig.targetMin)
+        if (timeToDose && mStatus.ec < mConfig.target)
         {
             mFromPrevDosing = Duration{0};
 
-            for (const auto& nutrientPump : mSchedule)
+            for (const auto& nutrientPump : mConfig.schedule)
             {
-                const float amount = nutrientPump.second / mTotalAmount * mConfig.dosingAmount;
                 const auto id = nutrientPump.first;
+                const float amount = nutrientPump.second / mTotalAmount * mConfig.dosingAmount;
                 mDosers.queueDose(id, amount);
             }
         }
