@@ -5,11 +5,13 @@
 #include <Arduino.h>
 
 
+// Construct DoserManager and Controllers and pass those to App
+
+
 constexpr DoserManager::DoserID phDown{0};
 constexpr DoserManager::DoserID grow{1};
 constexpr DoserManager::DoserID micro{2};
 constexpr DoserManager::DoserID bloom{3};
-
 constexpr float flowRate = 1.0f;
 
 constexpr ECController::NutrientSchedule ghe3part = {

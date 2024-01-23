@@ -2,11 +2,11 @@
 
 #include "controller.hpp"
 #include "core/common.hpp"
+#include "config.hpp"
 #include <array>
 #include <type_traits>
 #include <Arduino.h>
 #include <ezButton.h>
-#include "config.hpp"
 #include <chrono>
 #include <Wire.h>
 #include <DFRobot_RGBLCD1602.h>

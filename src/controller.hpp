@@ -4,11 +4,11 @@
 #include "core/ph_controller.hpp"
 #include "core/ec_controller.hpp"
 #include "core/doser_manager.hpp"
-#include "driver/liquid_level_sensor.hpp"
-#include "driver/solenoid_valve.hpp"
-#include "driver/dfrobot_ph_sensor_v2.hpp"
-#include "driver/tb6612fng_valve.hpp"
-#include "driver/ec_sensor.hpp"
+#include "drivers/liquid_level_sensor.hpp"
+#include "drivers/solenoid_valve.hpp"
+#include "drivers/dfrobot_ph_sensor_v2.hpp"
+#include "drivers/tb6612fng_valve.hpp"
+#include "drivers/ec_sensor.hpp"
 #include "config.hpp"
 #include <variant>
 

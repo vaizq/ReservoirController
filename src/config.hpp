@@ -1,6 +1,6 @@
 #pragma once
 
-#include "driver/tb6612fng_valve.hpp"
+#include "drivers/tb6612fng_valve.hpp"
 #include <array>
 #include <cstdint>
 
@@ -9,6 +9,8 @@ namespace Config
 {
 
 using namespace Driver;
+
+// Pindefs
 
 constexpr std::array<TB6612FNGValve::PinDef, 4> doserDefs = 
     {
@@ -25,5 +27,6 @@ constexpr uint8_t phSensorPin = 34;
 constexpr uint8_t ecSensorPin = 36;
 constexpr uint8_t buttonPin = 33;
 constexpr size_t PumpCount = 4;
+
 
 }
