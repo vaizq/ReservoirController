@@ -14,7 +14,7 @@ class LiquidLevelController
 public:
     struct Config
     {
-        Duration refillInterval = std::chrono::milliseconds(1);
+        Duration refillInterval = std::chrono::seconds(1);
     };
 
     struct Status
@@ -40,7 +40,6 @@ public:
 
     void start()
     {
-        closeValves();
         mRunning = true;
     }
 
@@ -52,22 +51,6 @@ public:
     bool isRunning() const
     {
         return mRunning;
-    }
-
-    void openValves()
-    {
-        if (isRunning())
-            return;
-
-        mValve.open();
-    }
-
-    void closeValves()
-    {
-        if (isRunning())
-            return;
-
-        mValve.close();
     }
 
     void setConfig(const Config& config)
@@ -85,14 +68,8 @@ public:
         return mStatus;
     }
 
-    ValveT& getValve()
-    {
-        return mValve;
-    }
-
     void update(const Duration dt)
     {
-        updateStatus(dt);
         if (mRunning)
             updateControl(dt);
     }
@@ -103,27 +80,29 @@ private:
         mFromPrevRefill += dt;
         const bool timeToRefill = mFromPrevRefill > mConfig.refillInterval;
 
-        if (mSensor.liquidIsPresent() && mValve.isOpen())
+        updateStatus();
+
+        if (mStatus.levelIsHigh && mStatus.valveIsOpen)
         {
             mValve.close();
         }
-        else if (timeToRefill && !mSensor.liquidIsPresent() && !mValve.isOpen())
+        else if (timeToRefill && !mStatus.levelIsHigh && !mStatus.valveIsOpen)
         {
-            mValve.open();
             mFromPrevRefill = Duration{0};
+            mValve.open();
         }
     }
 
-    void updateStatus(const Duration)
+    void updateStatus()
     {
-        mStatus = Status {.levelIsHigh = mSensor.liquidIsPresent(), .valveIsOpen = mValve.isOpen()};
+        mStatus.levelIsHigh = mSensor.liquidIsPresent();
+        mStatus.valveIsOpen = mValve.isOpen();
     }
-
 
     SensorT mSensor;
     ValveT mValve;
     Config mConfig;
-    Duration mFromPrevRefill;
+    Duration mFromPrevRefill{0};
     Status mStatus;
     bool mRunning;
 };

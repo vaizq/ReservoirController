@@ -3,6 +3,7 @@
 #include "core/liquid_level_controller.hpp"
 #include "core/ph_controller.hpp"
 #include "core/ec_controller.hpp"
+#include "core/doser_manager.hpp"
 #include "driver/liquid_level_sensor.hpp"
 #include "driver/solenoid_valve.hpp"
 #include "driver/dfrobot_ph_sensor_v2.hpp"
@@ -25,6 +26,11 @@ using Pump =
 using DosingPump = 
 #ifdef CULTIMATICS_V_0_1
     Core::DosingPump<Pump>;
+#endif
+
+using DoserManager =
+#ifdef CULTIMATICS_V_0_1
+    Core::DoserManager<Pump, Config::PumpCount>;
 #endif
 
 using LiquidLevelController = 

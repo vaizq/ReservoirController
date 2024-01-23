@@ -7,6 +7,7 @@
 #include "sensors.hpp"
 #include "doser_manager.hpp"
 #include <chrono>
+#include <Arduino.h>
 
 
 namespace Core
@@ -18,24 +19,29 @@ class PHController
 public:
     using Doser = DosingPump<ValveT>;
     using Dosers = DoserManager<ValveT, N>;
-    using Config = Controller::Config;
+
+    struct Config
+    {
+        float targetMax = 6.2f;
+        float dosingAmount = 1.0f;
+        Duration dosingInterval = std::chrono::seconds(50);
+    };
 
     struct Status
     {
         float ph;
-        bool isDosing;
     };
 
     static constexpr Config defaultConfig()
     {
-        return Config{.targetMin = 5.8f, .targetMax = 6.2f, .dosingAmount = 1.0f, .dosingInterval = std::chrono::seconds(100)};
+        return Config{.targetMax = 6.2f, .dosingAmount = 1.0f, .dosingInterval = std::chrono::seconds(50)};
     }
 
     PHController(SensorT&& sensor, Dosers& doserManager, typename Dosers::DoserID doserID, const Config& config = defaultConfig())
     : 
         mSensor{std::move(sensor)}, 
-        mDoserManager{doserManager}, 
-        mPHDownDoser{doserID},
+        mDosers{doserManager}, 
+        mDownDoser{doserID},
         mConfig{config}
     {
         start();
@@ -66,18 +72,9 @@ public:
         return mConfig;
     }
 
-    void setTargetPh(float ph)
+    const Status& getStatus() const
     {
-        if (ph >= 0.0f && ph <= 14.0f)
-        {
-            mConfig.targetMin = ph;
-            mConfig.targetMax = ph;
-        }
-    }
-
-    float ph() const
-    {
-        return mPh;
+        return mStatus;
     }
 
     void update(const Duration dt)
@@ -92,23 +89,22 @@ private:
         mFromLastDose += dt;
         const bool timeToDose = mFromLastDose > mConfig.dosingInterval;
 
-        mPh = (mSensor.readPH() + mPh) / 2.0f;
+        mStatus.ph = mSensor.readPH();
 
-        if (timeToDose && ph > mConfig.targetMax)
+        if (timeToDose && mStatus.ph > mConfig.targetMax)
         {
             mFromLastDose = Duration(0);
-            mDoserManager.queueDose(mPHDownDoser, mConfig.dosingAmount);
+            mDosers.queueDose(mDownDoser, mConfig.dosingAmount);
         }
     }
 
     SensorT mSensor;
-    Dosers& mDoserManager;
-    const typename Dosers::DoserID mPHDownDoser;
+    Dosers& mDosers;
+    const typename Dosers::DoserID mDownDoser;
     Controller::Config mConfig;
-    Duration mFromLastDose{0};
     Status mStatus;
+    Duration mFromLastDose{0};
     bool mRunning;
-    float mPh{7.0f};
 };
 
 }

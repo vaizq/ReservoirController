@@ -8,6 +8,9 @@
 #include <algorithm>
 
 
+namespace Core
+{
+
 template <typename ValveT, size_t N>
 class DoserManager
 {
@@ -58,6 +61,30 @@ public:
         return true;
     }
 
+    bool queueDose(float amount)
+    {
+        constexpr float singleDose = 1.0f;
+        for(int i = 0; i < static_cast<int>(amount / singleDose); ++i)
+        {
+            for (auto& doser : mDosers)
+            {
+                mPendingDoses.push(Dose{&doser, singleDose});
+            }
+        }
+
+        return true;
+    }
+
+    void reset()
+    {
+        mActiveDoses.clear();
+
+        while(!mPendingDoses.empty())
+        {
+            mPendingDoses.pop();
+        }
+    }
+
     void update(const Duration dt)
     {
         for (Doser& d : mDosers)
@@ -86,4 +113,4 @@ private:
     std::vector<Dose> mActiveDoses;
 };
 
-
+}

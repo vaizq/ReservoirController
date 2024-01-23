@@ -23,27 +23,27 @@ public:
     using Dosers = DoserManager<ValveT, TotalDoserCount>;
     using AmountPerLiter = float;
     using NutrientSchedule = std::array<std::pair<typename Dosers::DoserID, AmountPerLiter>, NutrientDoserCount>;
-    using Config = Controller::Config;
+
+    struct Config
+    {
+        float target;
+        float dosingAmount;
+        Duration dosingInterval;
+        NutrientSchedule schedule;
+    };
 
     struct Status
     {
         float ec;
-        NutrientSchedule schedule;
     };
 
-    static constexpr Config defaultConfig()
-    {
-        return Config{.targetMin = 1.0f, .targetMax = 1.5f, .dosingAmount = 10.0f, .dosingInterval = std::chrono::seconds(60)};
-    }
-
-    ECController(SensorT&& sensor, Dosers& dosers, NutrientSchedule schedule, const Config config = defaultConfig())
+    ECController(SensorT&& sensor, Dosers& dosers, const Config& config)
     : 
         mSensor(std::forward<SensorT>(sensor)), 
         mDosers(dosers), 
-        mSchedule{std::move(schedule)},
         mConfig(config)
     {
-        mTotalAmount = totalAmount(mSchedule);
+        mTotalAmount = totalAmount(mConfig.schedule);
         start();
     }
 
@@ -62,20 +62,10 @@ public:
         return mRunning;
     }
 
-    void setSchedule(NutrientSchedule schedule)
-    {
-        mSchedule = std::move(schedule);
-        mTotalAmount = totalAmount(mSchedule);
-    }
-
-    const NutrientSchedule& getSchedule()
-    {
-        return mSchedule;
-    }
-
     void setConfig(const Config& config) 
     { 
         mConfig = config; 
+        mTotalAmount = totalAmount(mConfig.schedule);
     }
 
     const Config& getConfig() const
@@ -88,18 +78,8 @@ public:
         return mStatus;
     }
 
-    void setTargetEc(float ec)
-    {
-        if (ec >= 0.0f)
-        {
-            mConfig.targetMax = ec;
-            mConfig.targetMin = ec;
-        }
-    }
-
     void update(Duration dt)
     {
-        updateStatus(dt);
         if (mRunning)
             updateControl(dt);
     }
@@ -110,10 +90,9 @@ private:
         mFromPrevDosing += dt;
         const bool timeToDose = mFromPrevDosing > mConfig.dosingInterval;
 
-        const float ec = mSensor.readEC();
+        mStatus.ec = mSensor.readEC();
 
-        // Check if it's timeToDose, EC is too low and none of the pumps are dosing
-        if (timeToDose && ec < mConfig.targetMin)
+        if (timeToDose && mStatus.ec < mConfig.targetMin)
         {
             mFromPrevDosing = Duration{0};
 
@@ -126,11 +105,6 @@ private:
         }
     }
 
-    void updateStatus(const Duration dt)
-    {
-        mStatus = Status{.ec = mSensor.readEC(), .schedule = mSchedule};
-    }
-
     float totalAmount(const NutrientSchedule& schedule)
     {
         return std::accumulate(schedule.begin(), schedule.end(), 0.0f, [](float total, const auto& nutrientPump) { return total + nutrientPump.first; });
@@ -138,12 +112,11 @@ private:
 
     SensorT mSensor;
     Dosers& mDosers;
-    NutrientSchedule mSchedule;
-    Controller::Config mConfig;
-    Duration mFromPrevDosing;
+    Config mConfig;
     Status mStatus;
-    bool mRunning;
+    Duration mFromPrevDosing{0};
     AmountPerLiter mTotalAmount;
+    bool mRunning;
 };
 
 }

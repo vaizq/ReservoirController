@@ -1,7 +1,8 @@
 #pragma once
 
 #include <cstdint>
-#include <queue>
+#include <deque>
+#include "read_voltage.hpp"
 
 namespace Driver 
 {
@@ -16,7 +17,7 @@ public:
     bool calibrate();
 
 private:
-    uint8_t mPin;
+    VoltageReader mVoltageReader;
     float mVoltageAtPh7 = 1.50f;
     float mVoltageAtPh4 = 2.03244f;
 };

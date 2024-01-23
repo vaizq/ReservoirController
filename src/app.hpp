@@ -8,28 +8,30 @@
 #include <ezButton.h>
 #include "pin_config.hpp"
 #include <chrono>
+#include <Wire.h>
+#include <DFRobot_RGBLCD1602.h>
 
 
 using namespace std::chrono_literals;
 
 
 
-void printStatus(LiquidLevelController& controller)
+void printStatus(DFRobot_RGBLCD1602& lcd, LiquidLevelController& controller)
 {
 }
 
-void printStatus(PHController& controller)
+void printStatus(DFRobot_RGBLCD1602& lcd, PHController& controller)
 {
     float ph = controller.ph();
-    Serial.print("PH: ");
-    Serial.println(ph);
+    lcd.setCursor(0, 0);
+    lcd.printf("PH %.1f", ph);
 }
 
-void printStatus(ECController& controller)
+void printStatus(DFRobot_RGBLCD1602& lcd, ECController& controller)
 {
     auto status = controller.getStatus();
-    Serial.print("EC: ");
-    Serial.println(status.ec);
+    lcd.setCursor(0, 1);
+    lcd.printf("EC %.1f ppm", status.ec);
 }
 
 
@@ -38,13 +40,26 @@ class App
 {
     using Clock = std::chrono::steady_clock;
 public:
-    App(std::array<Controller, N>&& controllers)
-    : mControllers(std::move(controllers)), mButton{Config::buttonPin, INPUT_PULLUP}
+    App(std::array<Controller, N>&& controllers, DoserManager& dosers)
+    : 
+        mControllers(std::move(controllers)), 
+        mDosers{dosers},
+        mButton{Config::buttonPin, INPUT_PULLUP},
+        mLcd{0x60, 16, 2}
     {
+    }
+
+    void init()
+    {
+        mLcd.init();
+        mLcd.setBacklight(true);
+        mLcd.print("Hello world!");
     }
 
     void update(const Duration dt)
     {
+        mDosers.update(dt);
+
         for (Controller& c: mControllers)
         {
             std::visit([dt](auto& controller) 
@@ -57,36 +72,28 @@ public:
 
         if (mButton.isPressed())
         {
-            for (Controller& c : mControllers)
-            {
-                if (auto* p = std::get_if<PHController>(&c))
-                {
-                    p->stop();
-                }
-            }
+            Serial.println("Run dosers");
+            mDosers.queueDose(1000.0f);
         }
 
         if (mButton.isReleased())
         {
-            // Start controllers
-            for (Controller& c : mControllers)
-            {
-                if (auto* p = std::get_if<PHController>(&c))
-                {
-                    p->start();
-                } 
-            }
+            Serial.println("Stop dosers");
+            mDosers.reset();
         }
 
-        if (mFromStatusPrint > 1000ms)
+        if (mFromStatusPrint > 500ms)
         {
             mFromStatusPrint = 0ms;
 
+            mLcd.clear();
+            mLcd.setCursor(0, 0);
+
             for (Controller& c : mControllers)
             {
-                std::visit([](auto& controller) 
+                std::visit([this](auto& controller) 
                 {
-                    printStatus(controller);
+                    printStatus(mLcd, controller);
                 }, c);
             }
         }
@@ -121,6 +128,8 @@ private:
     }
 
     std::array<Controller, N> mControllers;
+    DoserManager& mDosers;
     ezButton mButton;
     Duration mFromStatusPrint;
+    DFRobot_RGBLCD1602 mLcd;
 };

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdint>
+#include <deque>
+#include "read_voltage.hpp"
 
 namespace Driver 
 {
@@ -13,7 +15,7 @@ public:
     float readEC();
 
 private:
-    uint8_t mPin;
+    VoltageReader mVoltageReader;
 };
 
 }
