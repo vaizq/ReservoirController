@@ -14,13 +14,12 @@ namespace Core
 template <typename ValveT, size_t N>
 class DoserManager
 {
-    using Doser = Core::DosingPump<ValveT>;
-    using DoserArray = std::array<Doser, N>;
+    using DoserArray = std::array<Doser<ValveT>, N>;
 
     class Dose
     {
     public:
-        Dose(Doser* doser, float amount)
+        Dose(Doser<ValveT>* doser, float amount)
         : mDoser{doser}, mAmount{amount}
         {}
 
@@ -40,13 +39,14 @@ class DoserManager
         }
 
     private:
-        Doser* mDoser;
+        Doser<ValveT>* mDoser;
         float mAmount;
     };
 
 
 public:
-    using DoserID = size_t;
+    using DoserID = unsigned int;
+    static constexpr size_t DoserCount = N;
 
     DoserManager(DoserArray&& dosers, size_t simultaneusMax = N)
     : mDosers{std::move(dosers)}, mSM{simultaneusMax} 
@@ -92,9 +92,9 @@ public:
 
     void update(const Duration dt)
     {
-        for (Doser& d : mDosers)
+        for (auto& doser : mDosers)
         {
-            d.update(dt);
+            doser.update(dt);
         }
 
         mActiveDoses.erase(

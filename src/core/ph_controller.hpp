@@ -14,7 +14,6 @@ template <typename SensorT, typename ValveT, size_t N>
 class PHController
 {
 public:
-    using Doser = DosingPump<ValveT>;
     using Dosers = DoserManager<ValveT, N>;
 
     struct Config

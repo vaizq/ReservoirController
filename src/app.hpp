@@ -1,8 +1,7 @@
 #pragma once
 
-#include "controller.hpp"
-#include "core/common.hpp"
 #include "config.hpp"
+#include "core/common.hpp"
 #include <array>
 #include <type_traits>
 #include <Arduino.h>
@@ -10,9 +9,6 @@
 #include <chrono>
 #include <Wire.h>
 #include <DFRobot_RGBLCD1602.h>
-
-
-using namespace std::chrono_literals;
 
 
 void printStatus(DFRobot_RGBLCD1602& lcd, LiquidLevelController& controller)
@@ -34,16 +30,16 @@ void printStatus(DFRobot_RGBLCD1602& lcd, ECController& controller)
 }
 
 
-template <size_t N>
 class App
 {
     using Clock = std::chrono::steady_clock;
+    using ControllerArray = std::array<Controller, 3>;
 public:
-    App(std::array<Controller, N>&& controllers, DoserManager& dosers)
+    App(ControllerArray&& controllers, DoserManager& dosers)
     : 
         mControllers(std::move(controllers)), 
         mDosers{dosers},
-        mButton{Config::buttonPin, INPUT_PULLUP},
+        mButton{buttonPin, INPUT_PULLUP},
         mLcd{0x60, 16, 2}
     {
     }
@@ -76,12 +72,12 @@ public:
         if (mButton.isReleased())
         {
             mDosers.reset();
-            mID = (mID + 1) % Config::PumpCount;
+            mID = (mID + 1) % DoserManager::DoserCount;
         }
 
-        if (mFromStatusPrint > 500ms)
+        if (mFromStatusPrint > std::chrono::milliseconds(200))
         {
-            mFromStatusPrint = 0ms;
+            mFromStatusPrint = Duration{};
 
             mLcd.clear();
             mLcd.setCursor(0, 0);
@@ -98,7 +94,7 @@ public:
     }
 
 private:
-    std::array<Controller, N> mControllers;
+    ControllerArray mControllers;
     DoserManager& mDosers;
     ezButton mButton;
     Duration mFromStatusPrint{0};

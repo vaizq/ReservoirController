@@ -8,10 +8,10 @@ namespace Core
 {
 
 template <typename ValveT>
-class DosingPump 
+class Doser 
 {
 public:
-    DosingPump(ValveT&& valve, float flowRate)
+    Doser(ValveT&& valve, float flowRate)
     : mValve{std::move(valve)}, mFlowRate{flowRate}
     {}
 
@@ -30,11 +30,6 @@ public:
     bool isDosing() const 
     { 
         return mAmountLeft > 0.0f; 
-    }
-
-    ValveT& getValve()
-    {
-        return mValve;
     }
 
     void update(Duration dt)
