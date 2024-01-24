@@ -18,9 +18,9 @@ public:
 
     struct Config
     {
-        float target = 6.2f;
-        float dosingAmount = 1.0f;
-        Duration dosingInterval = std::chrono::seconds(60);
+        float target;
+        float dosingAmount;
+        Duration dosingInterval;
     };
 
     struct Status
@@ -28,12 +28,7 @@ public:
         float ph;
     };
 
-    static constexpr Config defaultConfig()
-    {
-        return Config{.target = 6.2f, .dosingAmount = 1.0f, .dosingInterval = std::chrono::seconds(60)};
-    }
-
-    PHController(SensorT&& sensor, Dosers& doserManager, typename Dosers::DoserID doserID, const Config& config = defaultConfig())
+    PHController(SensorT&& sensor, Dosers& doserManager, typename Dosers::DoserID doserID, const Config& config)
     : 
         mSensor{std::move(sensor)}, 
         mDosers{doserManager}, 

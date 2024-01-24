@@ -15,6 +15,7 @@
 #include <variant>
 
 
+// Core device types
 using Valve = Driver::TB6612FNGValve;
 
 using Doser = Core::Doser<Valve>;
@@ -32,6 +33,7 @@ using ControllerManager = Core::ControllerManager<PHController, ECController, Li
 using Controller = ControllerManager::Controller;
 
 
+// Pin definitions
 constexpr std::array<Driver::TB6612FNGValve::PinDef, 4> doserDefs = 
     {
         Driver::TB6612FNGValve::PinDef{.xIN1 = 4, .xIN2 = 5, .PWMx = 23},
@@ -46,3 +48,19 @@ constexpr uint8_t liquidLevelBottomSensorPin = 35;
 constexpr uint8_t phSensorPin = 34;
 constexpr uint8_t ecSensorPin = 36;
 constexpr uint8_t buttonPin = 33;
+
+
+// Application constants
+constexpr float flowRate = 1.0f;
+constexpr int parallelDosersLimit = 1;
+
+constexpr DoserManager::DoserID phDownDoser{0};
+constexpr DoserManager::DoserID growDoser{1};
+constexpr DoserManager::DoserID microDoser{2};
+constexpr DoserManager::DoserID bloomDoser{3};
+
+constexpr ECController::NutrientSchedule ghe3part = {
+    std::make_pair<int, float>(growDoser, 1.0f), 
+    std::make_pair<int, float>(microDoser, 2.0f), 
+    std::make_pair<int, float>(bloomDoser, 3.0f)
+};

@@ -14,7 +14,7 @@ class LiquidLevelController
 public:
     struct Config
     {
-        Duration refillInterval = std::chrono::seconds(1);
+        Duration refillInterval;
     };
 
     struct Status
@@ -28,7 +28,7 @@ public:
         return Config{};
     }
 
-    LiquidLevelController(SensorT&& sensor, ValveT&& valve, const Config& config = defaultConfig())
+    LiquidLevelController(SensorT&& sensor, ValveT&& valve, const Config& config)
     : 
         mSensor{std::move(sensor)}, 
         mValve{std::move(valve)}, 
