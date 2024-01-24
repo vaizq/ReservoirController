@@ -2,6 +2,7 @@
 
 #include "core/liquid_level_controller.hpp"
 #include "core/ph_controller.hpp"
+#include "core/controller_manager.hpp"
 #include "core/ec_controller.hpp"
 #include "core/doser_manager.hpp"
 #include "drivers/liquid_level_sensor.hpp"
@@ -26,7 +27,9 @@ using PHController = Core::PHController<Driver::DFRobotV2PHSensor, Valve, DoserM
 
 using ECController = Core::ECController<Driver::ECSensor, Valve, DoserManager::DoserCount, 3>;
 
-using Controller = std::variant<PHController, ECController, LiquidLevelController>;
+using ControllerManager = Core::ControllerManager<PHController, ECController, LiquidLevelController>;
+
+using Controller = ControllerManager::Controller;
 
 
 constexpr std::array<Driver::TB6612FNGValve::PinDef, 4> doserDefs = 

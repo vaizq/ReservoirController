@@ -30,7 +30,7 @@ public:
 
     static constexpr Config defaultConfig()
     {
-        return Config{.target = 6.2f, .dosingAmount = 1.0f, .dosingInterval = std::chrono::seconds(50)};
+        return Config{.target = 6.2f, .dosingAmount = 1.0f, .dosingInterval = std::chrono::seconds(60)};
     }
 
     PHController(SensorT&& sensor, Dosers& doserManager, typename Dosers::DoserID doserID, const Config& config = defaultConfig())
