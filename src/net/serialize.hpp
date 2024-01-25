@@ -12,6 +12,23 @@ nlohmann::json serializeStatus(const PHController::Status& status)
     return doc;
 }
 
+nlohmann::json serializeStatus(const ECController::Status& status)
+{
+    nlohmann::json doc;
+    doc["device"] = "ECController";
+    doc["ec"] = status.ec;
+    return doc;
+}
+
+nlohmann::json serializeStatus(const LiquidLevelController::Status& status)
+{
+    nlohmann::json doc;
+    doc["device"] = "LiquidLevelController";
+    doc["levelIsHigh"] = status.levelIsHigh;
+    doc["valveIsOpen"] = status.valveIsOpen;
+    return doc;
+}
+
 nlohmann::json serializeConfig(const PHController::Config& config)
 {
     nlohmann::json doc;
@@ -22,14 +39,6 @@ nlohmann::json serializeConfig(const PHController::Config& config)
     return doc;
 }
 
-nlohmann::json serializeStatus(const ECController::Status& status)
-{
-    nlohmann::json doc;
-    doc["device"] = "ECController";
-    doc["ec"] = status.ec;
-    return doc;
-}
-
 nlohmann::json serializeConfig(const ECController::Config& config)
 {
     nlohmann::json doc;
@@ -37,16 +46,6 @@ nlohmann::json serializeConfig(const ECController::Config& config)
     doc["target"] = config.target;
     doc["dosignAmount"] = config.dosingAmount;
     doc["dosingInterval"] = config.dosingInterval.count();
-    return doc;
-}
-
-
-nlohmann::json serializeStatus(const LiquidLevelController::Status& status)
-{
-    nlohmann::json doc;
-    doc["device"] = "LiquidLevelController";
-    doc["levelIsHigh"] = status.levelIsHigh;
-    doc["valveIsOpen"] = status.valveIsOpen;
     return doc;
 }
 

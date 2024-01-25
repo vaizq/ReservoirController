@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <variant>
 #include <type_traits>
+#include <nlohmann/json.hpp>
 
 
 namespace Core
@@ -16,13 +17,14 @@ template <typename... Types>
 // requires Types to be controllers
 class ControllerManager 
 {
+    using Clock = std::chrono::steady_clock;
 public:
     using Controller = std::variant<Types...>;
+    using ControllerArray = std::array<Controller, std::variant_size_v<Controller>>;
 
     ControllerManager(Types... args)
     :   mControllers{std::forward<Types>(args)...} 
     {}
-
 
     template <typename ControllerT>
     [[nodiscard]] const ControllerT& get() const
@@ -37,6 +39,10 @@ public:
         }
     }
 
+    const ControllerArray& getControllers() const
+    {
+        return mControllers;
+    }
 
     void update(const Duration dt)
     {
@@ -50,7 +56,7 @@ public:
     }
 
 private:
-    std::array<Controller, std::variant_size_v<Controller>> mControllers;
+    ControllerArray mControllers;
 };
 
 }
