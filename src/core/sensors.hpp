@@ -1,6 +1,11 @@
 #pragma once
-/*
+
+
 #include <concepts>
+
+
+namespace Core
+{
 
 
 template <typename T>
@@ -22,4 +27,6 @@ concept ECSensor = requires(T sensor)
 {
     { sensor.readEC() } -> std::convertible_to<float>;
 };
-*/
+
+
+}

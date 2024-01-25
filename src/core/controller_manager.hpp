@@ -6,6 +6,7 @@
 #include <chrono>
 #include <cstdint>
 #include <variant>
+#include <type_traits>
 
 
 namespace Core
@@ -21,6 +22,21 @@ public:
     ControllerManager(Types... args)
     :   mControllers{std::forward<Types>(args)...} 
     {}
+
+
+    template <typename ControllerT>
+    [[nodiscard]] const ControllerT& get() const
+    {
+        static_assert(std::disjunction_v<std::is_same<ControllerT, Types>...>);
+        for (const auto& c : mControllers)
+        {
+            if (auto*p = std::get_if<ControllerT>(&c))
+            {
+                return *p;
+            }
+        }
+    }
+
 
     void update(const Duration dt)
     {

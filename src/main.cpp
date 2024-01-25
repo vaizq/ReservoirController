@@ -1,7 +1,9 @@
 #include "core/controller_manager.hpp"
 #include "core/dt_timer.hpp"
 #include "config.hpp"
+#include "net/serialize.hpp"
 #include <Arduino.h>
+
 
 
 DoserManager doserManager{
@@ -47,6 +49,7 @@ ControllerManager controllerManager{
 void setup()
 {
     Serial.begin(115200);
+    
 }
 
 Core::DtTimer<> timer;
