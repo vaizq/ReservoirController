@@ -1,9 +1,9 @@
 #pragma once
 
-/*
 #include <concepts>
-#include "common.hpp"
 
+namespace Core
+{
 
 template <typename T>
 concept Valve = requires(T valve)
@@ -12,4 +12,5 @@ concept Valve = requires(T valve)
     { valve.close() };
     { valve.isOpen() } -> std::convertible_to<bool>;
 };
-*/
+
+}

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "actuators.hpp"
 #include "common.hpp"
 #include "sensors.hpp"
 #include <utility>
@@ -8,7 +9,7 @@
 namespace Core
 {
 
-template <typename SensorT, typename ValveT>
+template <LiquidLevelSensor SensorT, Valve ValveT>
 class LiquidLevelController
 {
 public:

@@ -4,13 +4,15 @@
 #include "common.hpp"
 #include "dosing_pump.hpp"
 #include "doser_manager.hpp"
+#include "actuators.hpp"
+#include "sensors.hpp"
 #include <chrono>
 
 
 namespace Core
 {
 
-template <typename SensorT, typename ValveT, size_t N>
+template <PHSensor SensorT, Valve ValveT, size_t N>
 class PHController
 {
 public:
@@ -28,7 +30,7 @@ public:
         float ph;
     };
 
-    PHController(SensorT&& sensor, Dosers& doserManager, typename Dosers::DoserID doserID, const Config& config)
+    PHController(SensorT&& sensor, Dosers& doserManager, Dosers::DoserID doserID, const Config& config)
     : 
         mSensor{std::move(sensor)}, 
         mDosers{doserManager}, 
@@ -91,7 +93,7 @@ private:
 
     SensorT mSensor;
     Dosers& mDosers;
-    const typename Dosers::DoserID mDownDoser;
+    const Dosers::DoserID mDownDoser;
     Config mConfig;
     Status mStatus;
     Duration mFromLastDose{0};

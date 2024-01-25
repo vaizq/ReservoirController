@@ -1,5 +1,7 @@
 #pragma once
 
+#include "actuators.hpp"
+#include "sensors.hpp"
 #include "common.hpp"
 #include "dosing_pump.hpp"
 #include "doser_manager.hpp"
@@ -12,7 +14,7 @@
 namespace Core
 {
 
-template<typename SensorT, typename ValveT, size_t TotalDoserCount, size_t NutrientDoserCount>
+template<ECSensor SensorT, Valve ValveT, size_t TotalDoserCount, size_t NutrientDoserCount>
 class ECController
 {
 public:

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "actuators.hpp"
 #include "common.hpp"
 #include <chrono>
 
@@ -7,7 +8,7 @@
 namespace Core
 {
 
-template <typename ValveT>
+template <Valve ValveT>
 class Doser 
 {
 public:

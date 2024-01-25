@@ -4,6 +4,7 @@
 #include <Arduino.h>
 
 
+
 DoserManager doserManager{
     {
         Doser{Valve{doserDefs[0]}, flowRate}, 
@@ -47,6 +48,7 @@ ControllerManager controllerManager{
 void setup()
 {
     Serial.begin(115200);
+    
 }
 
 Core::DtTimer<> timer;
