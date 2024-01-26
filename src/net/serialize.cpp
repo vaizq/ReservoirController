@@ -43,6 +43,14 @@ nlohmann::json serializeConfig(const ECController::Config& config)
     doc["target"] = config.target;
     doc["dosignAmount"] = config.dosingAmount;
     doc["dosingInterval"] = config.dosingInterval.count();
+    doc["nutrientSchedule"] = nlohmann::json::array();
+    for (const auto& pair : config.schedule)
+    {
+        nlohmann::json jPair;
+        jPair[0] = pair.first;
+        jPair[1] = pair.second;
+        doc["nutrientSchedule"].push_back(jPair);
+    }
     return doc;
 }
 

@@ -26,7 +26,7 @@ private:
     void manageControllers();
     void manageButton();
     void mqttCallback(char* topic, byte* msg, unsigned int length);
-    void handleRPC(const nlohmann::json& rpc);
+    std::optional<nlohmann::json> handleRPC(const nlohmann::json& rpc);
     
     DoserManager mDosers;
     PHController mPHController;
