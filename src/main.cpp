@@ -1,15 +1,7 @@
 #include "core/controller_manager.hpp"
 #include "core/dt_timer.hpp"
-#include "config.hpp"
-#include "net/serialize.hpp"
 #include "app.hpp"
 #include <Arduino.h>
-#include <WiFi.h>
-#include <PubSubClient.h>
-#include <optional>
-#include <DFRobot_RGBLCD1602.h>
-#include <ezButton.h>
-
 
 App app;
 

@@ -1,5 +1,6 @@
 #include "app.hpp"
 #include <chrono>
+#include <nlohmann/json.hpp>
 
 
 using namespace std::chrono_literals;
@@ -44,6 +45,7 @@ App::App()
         }
     },
     mLcd{0x60, 16, 2},
+    mButton{buttonPin, INPUT_PULLUP},
     mMqttClient{mWifiClient}
 {
     // Initially only run LiquidLevelController until reservoir if full
@@ -70,6 +72,7 @@ void App::update(const Duration dt)
     mMqttClient.loop();
 
     manageControllers();
+    manageButton();
     updateDisplay(dt);
 }
 
@@ -89,9 +92,9 @@ void App::updateDisplay(const Duration dt)
     }
 }
 
+// Only run ph and ec controllers when LLController is not running
 void App::manageControllers()
 {
-    // Only run ph and ec controllers when LLController is not running
     if (mLLController.getStatus().valveIsOpen)
     {
         if (mPHController.isRunning())
@@ -117,8 +120,90 @@ void App::manageControllers()
     }
 }
 
+// User can manually control dosers with an button
+void App::manageButton()
+{
+    static DoserManager::DoserID id{0};
+
+    if (mButton.isPressed())
+    {
+        mDosers.reset();
+        mDosers.queueDose(id, 69696969.0f);
+    }
+    else if (mButton.isReleased())
+    {
+        mDosers.reset();
+        id = (id + 1) % DoserManager::DoserCount;
+    }
+}
+
 void App::mqttCallback(char* topic, byte* msg, unsigned int length)
 {
+    using namespace nlohmann;
+
+    msg[length] = 0;
+    try
+    {
+        Serial.println("Parse json");
+        json rpc = json::parse(msg);
+        Serial.println("Json parsed");
+        handleRPC(rpc);
+    }
+    catch(const std::exception& e)
+    {
+        Serial.printf("Handling of rpc failed: %s\n", e.what());
+    }
+}
+
+void App::handleRPC(const nlohmann::json &rpc)
+{
+    if (rpc["method"] == "calibrate")
+    {
+        if (rpc["sensor"] == "PHSensor")
+        {
+            if (!mPHController.getSensor().calibrate())
+            {
+                throw std::runtime_error{"PH calibration failed"};
+            }
+        }
+        else if (rpc["sensor"] == "ECSensor")
+        {
+            if (!mECController.getSensor().calibrate(rpc["ec"]));
+            {
+                throw std::runtime_error{"EC calibration failed"};
+            }
+        }
+    }
+    else if (rpc["method"] == "startController")
+    {
+        if (rpc["controller"] == "PHController")
+        {
+            mPHController.start();
+        }
+        else if (rpc["controller"] == "ECController")
+        {
+            mECController.start();
+        }
+        else if (rpc["controller"] == "LiquidLevelController")
+        {
+            mLLController.start();
+        }
+    }
+    else if (rpc["method"] == "stopController")
+    {
+        if (rpc["controller"] == "PHController")
+        {
+            mPHController.stop();
+        }
+        else if (rpc["controller"] == "ECController")
+        {
+            mECController.stop();
+        }
+        else if (rpc["controller"] == "LiquidLevelController")
+        {
+            mLLController.stop();
+        }
+    }
 }
 
 void App::mqttClientConnect()
