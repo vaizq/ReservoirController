@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dosing_pump.hpp"
+#include "doser.hpp"
 #include "common.hpp"
 #include <array>
 #include <queue>
@@ -10,6 +10,9 @@
 
 namespace Core
 {
+
+// DoserManager takes care that only parallelLimit dosers runs simultaneusly by using simple scheduling
+// This way ReservoirController can handle "unlimited" number of dosers, with an power supply capable for only one
 
 template <typename ValveT, size_t N>
 class DoserManager
@@ -48,8 +51,8 @@ public:
     using DoserID = unsigned int;
     static constexpr size_t DoserCount = N;
 
-    DoserManager(DoserArray&& dosers, size_t simultaneusMax = N)
-    : mDosers{std::move(dosers)}, mSM{simultaneusMax} 
+    DoserManager(DoserArray&& dosers, size_t parallelLimit = N)
+    : mDosers{std::move(dosers)}, mSM{parallelLimit} 
     {}
 
     bool queueDose(DoserID id, float amount)

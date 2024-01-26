@@ -10,5 +10,14 @@ Driver::ECSensor::ECSensor(uint8_t pin)
 
 float Driver::ECSensor::readEC()
 {
-    return mVoltageReader.voltage() / 3.3f * 2.0f;
+    const float k = mCalibrationPoint.second / mCalibrationPoint.first;
+    return k * mVoltageReader.voltage();
+}
+
+bool Driver::ECSensor::calibrate(float ec)
+{
+    const float voltage = mVoltageReader.voltage();
+    mCalibrationPoint.first = voltage;
+    mCalibrationPoint.second = ec;
+    return true;
 }

@@ -3,7 +3,6 @@
 #include "actuators.hpp"
 #include "sensors.hpp"
 #include "common.hpp"
-#include "dosing_pump.hpp"
 #include "doser_manager.hpp"
 #include <array>
 #include <algorithm>
@@ -18,6 +17,7 @@ template<ECSensor SensorT, Valve ValveT, size_t TotalDoserCount, size_t Nutrient
 class ECController
 {
 public:
+    static constexpr size_t doserCount = NutrientDoserCount;
     using Dosers = DoserManager<ValveT, TotalDoserCount>;
     using AmountPerLiter = float;
     using NutrientSchedule = std::array<std::pair<typename Dosers::DoserID, AmountPerLiter>, NutrientDoserCount>;
@@ -76,6 +76,11 @@ public:
         return mStatus;
     }
 
+    SensorT& getSensor()
+    {
+        return mSensor;
+    }
+
     void update(Duration dt)
     {
         if (mRunning)
@@ -105,7 +110,7 @@ private:
 
     float totalAmount(const NutrientSchedule& schedule)
     {
-        return std::accumulate(schedule.begin(), schedule.end(), 0.0f, [](float total, const auto& nutrientPump) { return total + nutrientPump.first; });
+        return std::accumulate(schedule.begin(), schedule.end(), 0.0f, [](float total, const auto& nutrientPump) { return total + nutrientPump.second; });
     }
 
     SensorT mSensor;

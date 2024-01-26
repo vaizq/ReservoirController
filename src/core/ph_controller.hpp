@@ -2,7 +2,6 @@
 
 #include "actuators.hpp"
 #include "common.hpp"
-#include "dosing_pump.hpp"
 #include "doser_manager.hpp"
 #include "actuators.hpp"
 #include "sensors.hpp"
@@ -68,6 +67,11 @@ public:
     const Status& getStatus() const
     {
         return mStatus;
+    }
+
+    SensorT& getSensor()
+    {
+        return mSensor;
     }
 
     void update(const Duration dt)
