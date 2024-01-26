@@ -8,6 +8,8 @@
 namespace Core
 {
 
+// Doser is an simple abstraction on top of Valve to provide simple API for dosing
+
 template <Valve ValveT>
 class Doser 
 {
