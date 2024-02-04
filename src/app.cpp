@@ -8,8 +8,8 @@ using namespace std::chrono_literals;
 
 
 App::App()
-: 
-    mDosers {
+:
+    mDoserManager {
         {
             Doser{Valve{doserDefs[0]}, flowRate}, 
             Doser{Valve{doserDefs[1]}, flowRate},
@@ -19,26 +19,26 @@ App::App()
         parallelDosersLimit
     },
     mPHController {
-        Driver::DFRobotV2PHSensor{phSensorPin}, 
-        mDosers,
-        phDownDoser,
-        PHController::Config{
+                Driver::DFRobotV2PHSensor{phSensorPin},
+                mDoserManager,
+                phDownDoser,
+                PHController::Config{
             .target = 6.0f,
             .dosingAmount = 1.0f,
             .dosingInterval = std::chrono::seconds(60),
         } 
     },
     mECController {
-        Driver::ECSensor{ecSensorPin},
-        mDosers,
-        ECController::Config{
+                Driver::ECSensor{ecSensorPin},
+                mDoserManager,
+                ECController::Config{
             .target = 1.0f, 
             .dosingAmount = 10.0f, 
             .dosingInterval = std::chrono::seconds(60), 
             .schedule = ghe3part
         } 
     },
-    mLLController { 
+    mLLController {
         Driver::LiquidLevelSensor{liquidLevelTopSensorPin}, 
         Driver::SolenoidValve{valveSwitchPin},
         LiquidLevelController::Config{
@@ -66,7 +66,7 @@ void App::setup()
 
 void App::update(const Duration dt)
 {
-    mDosers.update(dt);
+    mDoserManager.update(dt);
     mPHController.update(dt);
     mECController.update(dt);
     mLLController.update(dt);
@@ -129,12 +129,12 @@ void App::manageButton()
 
     if (mButton.isPressed())
     {
-        mDosers.reset();
-        mDosers.queueDose(id, 69696969.0f);
+        mDoserManager.reset();
+        mDoserManager.queueDose(id, 69696969.0f);
     }
     else if (mButton.isReleased())
     {
-        mDosers.reset();
+        mDoserManager.reset();
         id = (id + 1) % DoserManager::DoserCount;
     }
 }
@@ -361,7 +361,8 @@ void App::mqttClientConnect()
 void App::connectWifi()
 {
     Serial.println("Connecting to wifi");
-    WiFi.begin(ssid, passwd); 
+    WiFi.begin(ssid, passwd);
+    Serial.println("Done");
 
     while (WiFi.status() != WL_CONNECTED)
     {

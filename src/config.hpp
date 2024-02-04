@@ -2,7 +2,6 @@
 
 #include "core/liquid_level_controller.hpp"
 #include "core/ph_controller.hpp"
-#include "core/controller_manager.hpp"
 #include "core/ec_controller.hpp"
 #include "core/doser_manager.hpp"
 #include "drivers/liquid_level_sensor.hpp"
@@ -27,10 +26,6 @@ using LiquidLevelController = Core::LiquidLevelController<Driver::LiquidLevelSen
 using PHController = Core::PHController<Driver::DFRobotV2PHSensor, Valve, DoserManager::DoserCount>;
 
 using ECController = Core::ECController<Driver::ECSensor, Valve, DoserManager::DoserCount, 3>;
-
-using ControllerManager = Core::ControllerManager<PHController, ECController, LiquidLevelController>;
-
-using Controller = ControllerManager::Controller;
 
 
 // Pin definitions

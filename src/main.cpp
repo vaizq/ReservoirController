@@ -10,6 +10,7 @@ void setup()
     delay(1000);
 
     app.setup();
+    Serial.println("Setup done");
 }
 
 Core::DtTimer<> timer;
@@ -18,6 +19,5 @@ void loop()
 {
     const auto dt = timer.tick();
     app.update(dt);
-
     delay(1);
 }

@@ -1,4 +1,5 @@
 #include "serialize.hpp"
+#include <nlohmann/json.hpp>
 
 
 nlohmann::json serializeStatus(const PHController::Status& status)

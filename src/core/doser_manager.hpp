@@ -11,9 +11,6 @@
 namespace Core
 {
 
-// DoserManager takes care that only parallelLimit dosers runs simultaneusly by using simple scheduling
-// This way ReservoirController can handle "unlimited" number of dosers, with an power supply capable for only one
-
 template <typename ValveT, size_t N>
 class DoserManager
 {

@@ -6,6 +6,7 @@
 #include <PubSubClient.h>
 #include <nlohmann/json_fwd.hpp>
 #include <ezButton.h>
+#include <optional>
 
 
 constexpr char ssid[] = "Zhone_9C8E";
@@ -28,7 +29,7 @@ private:
     void mqttCallback(char* topic, byte* msg, unsigned int length);
     std::optional<nlohmann::json> handleRPC(const nlohmann::json& rpc);
     
-    DoserManager mDosers;
+    DoserManager mDoserManager;
     PHController mPHController;
     ECController mECController;
     LiquidLevelController mLLController;
