@@ -11,7 +11,7 @@
 namespace Core
 {
 
-template <PHSensor SensorT, Valve ValveT, size_t N>
+template <AnalogSensor SensorT, Valve ValveT, size_t N>
 class PHController
 {
 public:
@@ -86,7 +86,7 @@ private:
         mFromLastDose += dt;
         const bool timeToDose = mFromLastDose > mConfig.dosingInterval;
 
-        mStatus.ph = mSensor.readPH();
+        mStatus.ph = mSensor.read();
 
         if (timeToDose && mStatus.ph > mConfig.target)
         {
@@ -101,7 +101,7 @@ private:
     Config mConfig;
     Status mStatus;
     Duration mFromLastDose{0};
-    bool mRunning;
+    bool mRunning{};
 };
 
 }

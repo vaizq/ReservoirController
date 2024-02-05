@@ -13,7 +13,7 @@
 namespace Core
 {
 
-template<ECSensor SensorT, Valve ValveT, size_t TotalDoserCount, size_t NutrientDoserCount>
+template<AnalogSensor SensorT, Valve ValveT, size_t TotalDoserCount, size_t NutrientDoserCount>
 class ECController
 {
 public:
@@ -93,7 +93,7 @@ private:
         mFromPrevDosing += dt;
         const bool timeToDose = mFromPrevDosing > mConfig.dosingInterval;
 
-        mStatus.ec = mSensor.readEC();
+        mStatus.ec = mSensor.read();
 
         if (timeToDose && mStatus.ec < mConfig.target)
         {
@@ -119,7 +119,7 @@ private:
     Status mStatus;
     Duration mFromPrevDosing{0};
     AmountPerLiter mTotalAmount;
-    bool mRunning;
+    bool mRunning{};
 };
 
 }

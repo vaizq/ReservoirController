@@ -19,7 +19,7 @@ App::App()
         parallelDosersLimit
     },
     mPHController {
-                Driver::DFRobotV2PHSensor{phSensorPin},
+                Driver::AnalogSensor{phSensorPin, {{1.5f, 7.0f}, {2.03244f, 4.0f}}},
                 mDoserManager,
                 phDownDoser,
                 PHController::Config{
@@ -29,7 +29,7 @@ App::App()
         } 
     },
     mECController {
-                Driver::ECSensor{ecSensorPin},
+                Driver::AnalogSensor{ecSensorPin, {{0.0f, 0.0f}, {2.4f, 2.0f}}},
                 mDoserManager,
                 ECController::Config{
             .target = 1.0f, 
@@ -39,7 +39,7 @@ App::App()
         } 
     },
     mLLController {
-        Driver::LiquidLevelSensor{liquidLevelTopSensorPin}, 
+        Driver::DigitalSensor{liquidLevelTopSensorPin},
         Driver::SolenoidValve{valveSwitchPin},
         LiquidLevelController::Config{
             .refillInterval = std::chrono::seconds(60)
@@ -53,6 +53,8 @@ App::App()
     mPHController.stop();
     mECController.stop();
     mLLController.start();
+
+    buildRpcInterface();
 }
 
 void App::setup()
@@ -144,13 +146,22 @@ void App::mqttCallback(char* topic, byte* msg, unsigned int length)
     using namespace nlohmann;
 
     msg[length] = 0;
-    json rpc = json::parse(msg, nullptr, false);
-    if (!rpc.is_discarded())
+    json j = json::parse(msg, nullptr, false);
+    if (!j.is_discarded())
     {
-        const auto response = handleRPC(rpc);
+        Serial.print("Call handleRPC for ");
+        Serial.println(j.dump().c_str());
+
+        const auto response = handleRPC(j);
+
         if (response)
         {
+            Serial.println(response->dump().c_str());
             mMqttClient.publish("ReservoirController/rpc/response", response->dump().c_str());
+        }
+        else
+        {
+            Serial.println("No response");
         }
     }
     else
@@ -162,180 +173,7 @@ void App::mqttCallback(char* topic, byte* msg, unsigned int length)
 
 std::optional<nlohmann::json> App::handleRPC(const nlohmann::json &rpc)
 {
-    const auto& method = rpc["method"];
-
-    if (method == "calibrate")
-    {
-        if (rpc["sensor"] == "PHSensor")
-        {
-            if (mPHController.getSensor().calibrate())
-            {
-                Serial.println("PH calibration succeeded");
-            }
-            else
-            {
-                Serial.println("PH calibraion failed");
-            }
-        }
-        else if (rpc["sensor"] == "ECSensor")
-        {
-            const float ec = rpc["ec"];
-            Serial.printf("EC: %.2f\n", ec);
-            if (mECController.getSensor().calibrate(ec))
-            {
-                Serial.println("EC calibration succeeded");
-            }
-            else
-            {
-                Serial.println("EC calibration failed");
-            }
-        }
-    }
-    else if (method == "startController")
-    {
-        if (rpc["controller"] == "PHController")
-        {
-            mPHController.start();
-        }
-        else if (rpc["controller"] == "ECController")
-        {
-            mECController.start();
-        }
-        else if (rpc["controller"] == "LiquidLevelController")
-        {
-            mLLController.start();
-        }
-    }
-    else if (method == "stopController")
-    {
-        if (rpc["controller"] == "PHController")
-        {
-            mPHController.stop();
-        }
-        else if (rpc["controller"] == "ECController")
-        {
-            mECController.stop();
-        }
-        else if (rpc["controller"] == "LiquidLevelController")
-        {
-            mLLController.stop();
-        }
-    }
-    else if (method == "getStatus")
-    {
-        nlohmann::json response;
-
-        response["id"] = rpc["id"];
-
-        if (rpc["device"] == "PHController")
-        {
-            response["status"] = serializeStatus(mPHController.getStatus());
-        }
-        else if (rpc["device"] == "ECController")
-        {
-            response["status"] = serializeStatus(mECController.getStatus());
-        }
-        else if (rpc["device"] == "LiquidLevelController")
-        {
-            response["status"] = serializeStatus(mLLController.getStatus());
-        }
-        else
-        {
-            return {};
-        }
-
-        return response;
-    }
-    else if (method == "getConfig")
-    {
-        nlohmann::json response;
-
-        response["id"] = rpc["id"];
-
-        if (rpc["device"] == "PHController")
-        {
-            response["config"] = serializeConfig(mPHController.getConfig());
-        }
-        else if (rpc["device"] == "ECController")
-        {
-            response["config"] = serializeConfig(mECController.getConfig());
-        }
-        else if (rpc["device"] == "LiquidLevelController")
-        {
-            response["config"] = serializeConfig(mLLController.getConfig());
-        }
-        else
-        {
-            return {};
-        }
-
-        return response;
-    }
-    else if (method == "setConfig")
-    {
-        if (rpc["device"] == "PHController")
-        {
-            PHController::Config cfg = mPHController.getConfig();
-
-            cfg.target = rpc.value("target", cfg.target);
-            cfg.dosingAmount = rpc.value("dosingAmout", cfg.dosingAmount);
-            if (rpc.contains("dosingInterval"))
-            {
-                cfg.dosingInterval = Duration(rpc["dosingInterval"].get<float>());
-            }
-
-            mPHController.setConfig(cfg);
-        }
-        else if (rpc["device"] == "ECController")
-        {
-            ECController::Config cfg = mECController.getConfig();
-
-            cfg.target = rpc.value("target", cfg.target);
-            cfg.dosingAmount = rpc.value("dosingAmout", cfg.dosingAmount);
-            if (rpc.contains("dosingInterval"))
-            {
-                cfg.dosingInterval = Duration(rpc["dosingInterval"].get<float>());
-            }
-            if (rpc.contains("nutrientSchedule") && rpc["nutrientSchedule"].is_array() && rpc["nutrientSchedule"].size() == mECController.doserCount)
-            {
-                int i = 0;
-                for (const auto& pair : rpc["nutrientSchedule"]) {
-                    if (pair.is_array() && pair.size() == 2) {
-                        const int pumpID = pair[0].get<unsigned int>();
-                        const float nutrientAmount = pair[1].get<float>();
-                        cfg.schedule[i].first = pumpID;
-                        cfg.schedule[i].second = nutrientAmount;
-                    } else {
-                        Serial.println("Invalid pair structure in schedule");
-                    }
-                    ++i;
-                }
-            }
-            else
-            {
-                Serial.println("Nutrient schedule is not valid");
-            }
-
-            mECController.setConfig(cfg);
-        }
-        else if (rpc["device"] == "LiquidLevelController")
-        {
-            LiquidLevelController::Config cfg = mLLController.getConfig();
-
-            if (rpc.contains("refillInterval"))
-            {
-                cfg.refillInterval = Duration{rpc["refillInterval"].get<float>()};
-            }
-
-            mLLController.setConfig(cfg);
-        }
-        else
-        {
-            return {};
-        }
-    }
-
-    return {};
+    return mRpcInterface.handle(rpc);
 }
 
 void App::mqttClientConnect()
@@ -348,7 +186,7 @@ void App::mqttClientConnect()
         if (mMqttClient.connect("ReservoirController"))
         {
             Serial.println("Connected");
-            mMqttClient.subscribe("ReservoirController/rpc");
+            mMqttClient.subscribe("ReservoirController/rpc/request");
             break;
         }
         else
@@ -373,3 +211,54 @@ void App::connectWifi()
     Serial.println("Wifi connected");
     Serial.println(WiFi.localIP());
 }
+
+void App::buildRpcInterface()
+{
+    using Params = JsonRpcInterface::Params;
+    mRpcInterface.bind("getPH", [this](const std::optional<Params>& params) {
+        return mPHController.getStatus().ph;
+    });
+
+    mRpcInterface.bind("getEC", [this](const std::optional<Params>& params) {
+        return mECController.getStatus().ec;
+    });
+
+    mRpcInterface.bind("setTargetPH", [this](const std::optional<Params>& params) {
+        if (params)
+        {
+            const float value = (*params)["value"];
+            auto config = mPHController.getConfig();
+            config.target = value;
+            mPHController.setConfig(config);
+        }
+        return std::nullopt;
+    });
+
+    mRpcInterface.bind("setTargetEC", [this](const std::optional<Params>& params) {
+        if (params)
+        {
+            const float value = (*params)["value"];
+            auto config = mECController.getConfig();
+            config.target = value;
+            mECController.setConfig(config);
+        }
+        return std::nullopt;
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

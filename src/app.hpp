@@ -2,6 +2,7 @@
 
 #include "config.hpp"
 #include "DFRobot_RGBLCD1602.h"
+#include "net/JsonRpc.h"
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <nlohmann/json_fwd.hpp>
@@ -27,6 +28,7 @@ private:
     void manageControllers();
     void manageButton();
     void mqttCallback(char* topic, byte* msg, unsigned int length);
+    void buildRpcInterface();
     std::optional<nlohmann::json> handleRPC(const nlohmann::json& rpc);
     
     DoserManager mDoserManager;
@@ -37,4 +39,5 @@ private:
     ezButton mButton;
     WiFiClient mWifiClient;
     PubSubClient mMqttClient;
+    JsonRpcInterface mRpcInterface;
 };

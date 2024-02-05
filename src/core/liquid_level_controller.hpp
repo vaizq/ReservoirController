@@ -9,7 +9,7 @@
 namespace Core
 {
 
-template <LiquidLevelSensor SensorT, Valve ValveT>
+template <DigitalSensor SensorT, Valve ValveT>
 class LiquidLevelController
 {
 public:
@@ -96,7 +96,7 @@ private:
 
     void updateStatus()
     {
-        mStatus.levelIsHigh = mSensor.liquidIsPresent();
+        mStatus.levelIsHigh = mSensor.read();
         mStatus.valveIsOpen = mValve.isOpen();
     }
 
@@ -105,7 +105,7 @@ private:
     Config mConfig;
     Duration mFromPrevRefill{0};
     Status mStatus;
-    bool mRunning;
+    bool mRunning{};
 };
 
 }

@@ -4,28 +4,25 @@
 #include "core/ph_controller.hpp"
 #include "core/ec_controller.hpp"
 #include "core/doser_manager.hpp"
-#include "drivers/liquid_level_sensor.hpp"
 #include "drivers/solenoid_valve.hpp"
-#include "drivers/dfrobot_ph_sensor_v2.hpp"
+#include "drivers/AnalogSensor.h"
+#include "drivers/DigitalSensor.h"
 #include "drivers/tb6612fng_valve.hpp"
-#include "drivers/ec_sensor.hpp"
 #include <array>
 #include <cstdint>
 #include <variant>
 
 
+constexpr size_t totalDoserCount{4};
+constexpr size_t nutrientDoserCount{3};
+
 // Core device types
 using Valve = Driver::TB6612FNGValve;
-
 using Doser = Core::Doser<Valve>;
-
-using DoserManager = Core::DoserManager<Valve, 4>;
-
-using LiquidLevelController = Core::LiquidLevelController<Driver::LiquidLevelSensor, Driver::SolenoidValve>;
-
-using PHController = Core::PHController<Driver::DFRobotV2PHSensor, Valve, DoserManager::DoserCount>;
-
-using ECController = Core::ECController<Driver::ECSensor, Valve, DoserManager::DoserCount, 3>;
+using DoserManager = Core::DoserManager<Valve, totalDoserCount>;
+using LiquidLevelController = Core::LiquidLevelController<Driver::DigitalSensor, Driver::SolenoidValve>;
+using PHController = Core::PHController<Driver::AnalogSensor, Valve, DoserManager::DoserCount>;
+using ECController = Core::ECController<Driver::AnalogSensor, Valve, DoserManager::DoserCount, nutrientDoserCount>;
 
 
 // Pin definitions
@@ -36,7 +33,6 @@ constexpr std::array<Driver::TB6612FNGValve::PinDef, 4> doserDefs =
         Driver::TB6612FNGValve::PinDef{.xIN1 = 13, .xIN2 = 12, .PWMx = 14},
         Driver::TB6612FNGValve::PinDef{.xIN1 = 16, .xIN2 = 15, .PWMx = 17}
     };
-
 constexpr uint8_t valveSwitchPin = 27;
 constexpr uint8_t liquidLevelTopSensorPin = 32;
 constexpr uint8_t liquidLevelBottomSensorPin = 35;
