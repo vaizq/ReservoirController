@@ -34,9 +34,9 @@ namespace Core
             float ec;
         };
 
-        ECController(SensorT&& sensor, DM& dm, const Config& config)
+        ECController(const SensorT& sensor, DM& dm, const Config& config)
         :
-            mSensor{std::forward<SensorT>(sensor)},
+            mSensor{sensor},
             mDM{dm},
             mConfig{config}
         {
@@ -112,7 +112,7 @@ namespace Core
             return std::accumulate(schedule.begin(), schedule.end(), 0.0f, [](float total, const auto& nutrientPump) { return total + nutrientPump.second; });
         }
 
-        SensorT mSensor;
+        const SensorT& mSensor;
         DM& mDM;
         Config mConfig;
         Status mStatus;

@@ -29,13 +29,14 @@ public:
         float ph;
     };
 
-    PHController(SensorT&& sensor, DM::DoserHandle doser, const Config& config)
+    // Read only reference to sensor, a handle to phDownDoser doser and a config
+    PHController(const SensorT& sensor, DM::DoserHandle phDownDoser, const Config& config)
     : 
-        mSensor{std::move(sensor)},
-        mDoser{doser},
+        mSensor{sensor},
+        mDoser{phDownDoser},
         mConfig{config}
     {
-        start();
+        stop();
     }
 
     void start()
@@ -68,11 +69,6 @@ public:
         return mStatus;
     }
 
-    SensorT& getSensor()
-    {
-        return mSensor;
-    }
-
     void update(const Duration dt)
     {
         if (mRunning)
@@ -94,7 +90,7 @@ private:
         }
     }
 
-    SensorT mSensor;
+    const SensorT& mSensor;
     DM::DoserHandle mDoser;
     Config mConfig;
     Status mStatus;
