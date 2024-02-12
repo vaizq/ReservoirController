@@ -15,7 +15,7 @@ template <AnalogSensor SensorT, Valve ValveT, size_t N>
 class PHController
 {
 public:
-    using Dosers = DoserManager<ValveT, N>;
+    using DM = DoserManager<ValveT, N>;
 
     struct Config
     {
@@ -29,11 +29,10 @@ public:
         float ph;
     };
 
-    PHController(SensorT&& sensor, Dosers& doserManager, Dosers::DoserID doserID, const Config& config)
+    PHController(SensorT&& sensor, DM::DoserHandle doser, const Config& config)
     : 
-        mSensor{std::move(sensor)}, 
-        mDosers{doserManager}, 
-        mDownDoser{doserID},
+        mSensor{std::move(sensor)},
+        mDoser{doser},
         mConfig{config}
     {
         start();
@@ -91,13 +90,12 @@ private:
         if (timeToDose && mStatus.ph > mConfig.target)
         {
             mFromLastDose = Duration(0);
-            mDosers.queueDose(mDownDoser, mConfig.dosingAmount);
+            mDoser.queueDose(mConfig.dosingAmount);
         }
     }
 
     SensorT mSensor;
-    Dosers& mDosers;
-    const Dosers::DoserID mDownDoser;
+    DM::DoserHandle mDoser;
     Config mConfig;
     Status mStatus;
     Duration mFromLastDose{0};

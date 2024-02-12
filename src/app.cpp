@@ -20,8 +20,7 @@ App::App()
     },
     mPHController {
                 Driver::AnalogSensor{phSensorPin, {{1.5f, 7.0f}, {2.03244f, 4.0f}}},
-                mDoserManager,
-                phDownDoser,
+                mDoserManager.getHandle(phDownDoser),
                 PHController::Config{
             .target = 6.0f,
             .dosingAmount = 1.0f,
@@ -49,9 +48,8 @@ App::App()
     mButton{buttonPin, INPUT_PULLUP},
     mMqttClient{mWifiClient}
 {
-    // Initially only run LiquidLevelController until reservoir if full
-    mPHController.stop();
-    mECController.stop();
+    mPHController.start();
+    mECController.start();
     mLLController.start();
 
     buildRpcInterface();
@@ -96,9 +94,10 @@ void App::updateDisplay(const Duration dt)
     }
 }
 
-// Only run ph and ec controllers when LLController is not running
 void App::manageControllers()
 {
+    /*
+    // Only run ph and ec controllers when LLController is not running
     if (mLLController.getStatus().valveIsOpen)
     {
         if (mPHController.isRunning())
@@ -122,9 +121,10 @@ void App::manageControllers()
             mECController.start();
         }
     }
+     */
 }
 
-// User can manually control dosers with an button
+// User can manually control dosers with a button
 void App::manageButton()
 {
     static DoserManager::DoserID id{0};
@@ -149,19 +149,11 @@ void App::mqttCallback(char* topic, byte* msg, unsigned int length)
     json j = json::parse(msg, nullptr, false);
     if (!j.is_discarded())
     {
-        Serial.print("Call handleRPC for ");
-        Serial.println(j.dump().c_str());
-
         const auto response = handleRPC(j);
 
         if (response)
         {
-            Serial.println(response->dump().c_str());
             mMqttClient.publish("ReservoirController/rpc/response", response->dump().c_str());
-        }
-        else
-        {
-            Serial.println("No response");
         }
     }
     else
@@ -174,6 +166,22 @@ void App::mqttCallback(char* topic, byte* msg, unsigned int length)
 std::optional<nlohmann::json> App::handleRPC(const nlohmann::json &rpc)
 {
     return mRpcInterface.handle(rpc);
+}
+
+void App::connectWifi()
+{
+    Serial.println("Connecting to wifi");
+    WiFi.begin(ssid, passwd);
+    Serial.println("Done");
+
+    while (WiFi.status() != WL_CONNECTED)
+    {
+        delay(500);
+        Serial.print(".");
+    }
+    Serial.println("");
+    Serial.println("Wifi connected");
+    Serial.println(WiFi.localIP());
 }
 
 void App::mqttClientConnect()
@@ -194,22 +202,6 @@ void App::mqttClientConnect()
             Serial.println("Connection failed");
         }
     }
-}
-
-void App::connectWifi()
-{
-    Serial.println("Connecting to wifi");
-    WiFi.begin(ssid, passwd);
-    Serial.println("Done");
-
-    while (WiFi.status() != WL_CONNECTED)
-    {
-        delay(500);
-        Serial.print(".");
-    }
-    Serial.println("");
-    Serial.println("Wifi connected");
-    Serial.println(WiFi.localIP());
 }
 
 void App::buildRpcInterface()

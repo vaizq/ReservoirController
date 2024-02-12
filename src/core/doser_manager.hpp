@@ -17,8 +17,26 @@ namespace Core
     class DoserManager
     {
     public:
-        using DoserID = unsigned int;
         static constexpr size_t DoserCount = N;
+        using DoserID = size_t;
+
+        class DoserHandle
+        {
+        public:
+            DoserHandle(DoserManager<ValveT, N>& dm, DoserID id)
+            :   mDM{dm},
+                mID{id}
+            {}
+
+            void queueDose(float amount)
+            {
+                mDM.queueDose(mID, amount);
+            }
+
+        private:
+            DoserManager<ValveT, N>& mDM;
+            DoserID mID;
+        };
 
     private:
         using DoserArray = std::array<Doser<ValveT>, DoserCount>;
@@ -51,10 +69,18 @@ namespace Core
         };
 
     public:
+
         explicit DoserManager(DoserArray&& dosers, size_t parallelLimit = DoserCount)
         :   mDosers{std::move(dosers)},
             mParallelLimit{parallelLimit}
         {}
+
+        DoserManager(const DoserManager&) = delete;
+
+        DoserHandle getHandle(DoserID doserID)
+        {
+            return DoserHandle(*this, doserID);
+        }
 
         bool queueDose(DoserID id, float amount)
         {
