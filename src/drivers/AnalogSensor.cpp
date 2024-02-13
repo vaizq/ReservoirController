@@ -6,16 +6,22 @@
 #include "EEPROM.h"
 
 
-constexpr int addressForCalibration{69};
-constexpr int addressForMagicNumber{420};
-constexpr int magicNumber{69420666};
+constexpr int addressForCalibration{0};
+constexpr int addressForMagicNumber{128};
+constexpr int magicNumber{6942066};
 
 
-Driver::AnalogSensor::AnalogSensor(uint8_t pin, TwoPointCalibration defaultCalibration)
+Driver::AnalogSensor::AnalogSensor(uint8_t pin, TwoPointCalibration defaultCalibration, int baseAddress)
 :
     mVoltageReader(pin, 10),
-    mCalibration(std::move(defaultCalibration))
-{}
+    mCalibration(std::move(defaultCalibration)),
+    mBaseAddress(baseAddress)
+{
+    if (isCalibrated())
+    {
+        loadCalibration();
+    }
+}
 
 float Driver::AnalogSensor::read() const
 {
@@ -24,12 +30,13 @@ float Driver::AnalogSensor::read() const
 
 void Driver::AnalogSensor::update(Duration dt)
 {
-    const float x = mVoltageReader.voltage();
+    const float x = (mVoltageReader.voltage() - mCalibration.first.first);
     const float dx = mCalibration.second.first - mCalibration.first.first;
     const float dy = mCalibration.second.second - mCalibration.first.second;
     const float k = dy / dx;
     const float c = mCalibration.first.second;
     mPH = k * x + c;
+    Serial.printf("X: %.2f\ndx: %.2f\ndy: %.2f\nk: %.2f\nc: %.2f\nPH: %.1f\n", x, dx, dy, k, c, mPH);
 }
 
 bool Driver::AnalogSensor::calibrate(float value, int numSamples)
@@ -76,19 +83,21 @@ void Driver::AnalogSensor::validateCalibration()
 void Driver::AnalogSensor::storeCalibration()
 {
     if (!isCalibrated()) {
-        EEPROM.writeInt(addressForMagicNumber, magicNumber);
+        EEPROM.writeInt(mBaseAddress + addressForMagicNumber, magicNumber);
+        EEPROM.commit();
     }
-    EEPROM.put(addressForCalibration, mCalibration);
+    EEPROM.put(mBaseAddress + addressForCalibration, mCalibration);
+    EEPROM.commit();
 }
 
 void Driver::AnalogSensor::loadCalibration()
 {
-    EEPROM.get(addressForCalibration, mCalibration);
+    EEPROM.get(mBaseAddress + addressForCalibration, mCalibration);
 }
 
 bool Driver::AnalogSensor::isCalibrated() const
 {
-    return EEPROM.readInt(addressForMagicNumber) == magicNumber;
+    return EEPROM.readInt(mBaseAddress + addressForMagicNumber) == magicNumber;
 }
 
 

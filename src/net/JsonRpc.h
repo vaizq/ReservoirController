@@ -14,91 +14,120 @@
 #include <exception>
 
 
-struct Parameter
+namespace JsonRpc
 {
-    enum class Type
+
+
+    struct Parameter
     {
-        Boolean,
-        Integer,
-        Real,
-        String
+        enum class Type
+        {
+            Boolean,
+            Integer,
+            Real,
+            String
+        };
+
+        Type type;
+        std::string name;
     };
 
-    std::string name;
-    Type type;
-};
 
-
-class JsonRpcInterface
-{
-public:
-    using Request = nlohmann::json;
-    using Response = nlohmann::json;
-    using Procedure = std::function<std::optional<Response>(const std::optional<nlohmann::json>&)>;
-
-    struct Handler
+    enum class ErrorCode : int
     {
-        Procedure procedure;
-        std::vector<Parameter> params;
+        ParseError = -32700,
+        InvalidRequest = -32600,
+        MethodNotFound = -32601,
+        InvalidParams = 32602,
+        InternalError = -32603,
+        ServerError = -32000
     };
 
-    void bind(const std::string& name, Procedure procedure, const std::vector<Parameter>& params = {})
-    {
-        mHandlers[name] = Handler{std::move(procedure), params};
-    }
 
-    std::optional<Response> handle(const Request& request)
+    class Api
     {
-        if (auto it = mHandlers.find(request["method"]); it != mHandlers.end())
+    public:
+        using Request = nlohmann::json;
+        using Response = nlohmann::json;
+        using Procedure = std::function<Response(const Request&)>;
+
+        struct Method
         {
-            return it->second.procedure(request.contains("params") ? std::optional<nlohmann::json>{request["params"]} : std::nullopt);
+            Procedure procedure;
+            std::vector<Parameter> params;
+        };
+
+        void bind(const std::string &name, Procedure procedure, std::vector<Parameter> params = {})
+        {
+            mMethods[name] = Method{std::move(procedure), std::move(params)};
         }
-        else if (request["method"] == "getDescription" || request["method"] == "getDesc")
+
+        Response handle(const Request &request)
         {
-            return description();
-        }
-
-        return {};
-    }
-
-private:
-
-    // Get description of the provided rpc interface
-    [[nodiscard]] nlohmann::json description() const
-    {
-        nlohmann::json desc;
-        for (const auto& [name, handler] : mHandlers)
-        {
-            nlohmann::json method;
-            method["name"] = name;
-
-            for (const auto& param : handler.params)
-            {
-                nlohmann::json p;
-                p["name"] = param.name;
-                p["type"] = [&param]() {
-                    switch(param.type)
-                    {
-                        case Parameter::Type::Boolean:
-                            return "Boolean";
-                        case Parameter::Type::Integer:
-                            return "Integer";
-                        case Parameter::Type::Real:
-                            return "Real";
-                        case Parameter::Type::String:
-                            return "String";
-                    }
-                }();
-                method["params"].push_back(p);
+            if (auto it = mMethods.find(request["method"]); it != mMethods.end()) {
+                auto response = it->second.procedure(request);
+                response["jsonrpc"] = 2.0;
+                return response;
+            } else if (request["method"] == "getDescription" || request["method"] == "getDesc") {
+                return description();
             }
 
-            desc["methods"].push_back(method);
+            return Response{{"jsonrpc", 2.0}};
         }
-        return desc;
-    }
 
-    std::map<std::string, Handler> mHandlers;
-};
+        static Response createErrorResponse(int id, ErrorCode errorCode, const std::string &errorMessage)
+        {
+            Api::Response resp;
+            resp["id"] = id;
+            resp["error"]["code"] = static_cast<int>(errorCode);
+            resp["error"]["message"] = errorCode;
+            return resp;
+        }
+    private:
+
+        // Get description of the provided rpc interface
+        [[nodiscard]] nlohmann::json description() const
+        {
+            nlohmann::json desc {
+                    {"jsonrpc", 2.0}
+            };
+            for (const auto &[name, method]: mMethods) {
+                nlohmann::json methodJson;
+                methodJson["name"] = name;
+
+                for (const auto &param: method.params) {
+                    nlohmann::json p;
+                    p["name"] = param.name;
+                    p["type"] = [&param]()
+                    {
+                        switch (param.type) {
+                            case Parameter::Type::Boolean:
+                                return "boolean";
+                            case Parameter::Type::Integer:
+                                return "integer";
+                            case Parameter::Type::Real:
+                                return "real";
+                            case Parameter::Type::String:
+                                return "string";
+                            default:
+                                return "integer";
+                        }
+                    }();
+                    methodJson["params"].push_back(p);
+                }
+
+                desc["methods"].push_back(methodJson);
+            }
+            return desc;
+        }
+
+        std::map<std::string, Method> mMethods;
+    };
+
+
+
+}
+
 
 #endif //RESERVOIRCONTROLLER_JSONRPC_H
 

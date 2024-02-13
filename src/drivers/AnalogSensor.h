@@ -19,16 +19,15 @@ namespace Driver
         using TwoPointCalibration = std::pair<std::pair<float, float>, std::pair<float, float>>;
 
         explicit AnalogSensor(uint8_t pin, TwoPointCalibration defaultCalibration = {{0.0f, 0.0f},
-                                                                            {1.0f, 0.0f}});
-
-        float read() const;
+                                                                            {1.0f, 0.0f}}, int baseAddress = 0);
+        [[nodiscard]] float read() const;
 
         bool calibrate(float value, int numSamples = 1);
 
         void update(Duration dt);
 
     private:
-        bool isCalibrated() const;
+        [[nodiscard]] bool isCalibrated() const;
 
         void validateCalibration();
 
@@ -39,6 +38,7 @@ namespace Driver
         VoltageReader mVoltageReader;
         TwoPointCalibration mCalibration{};
         float mPH{7.0f};
+        int mBaseAddress{0};
     };
 }
 

@@ -20,24 +20,31 @@ class App
 public:
     App();
     void setup();
-    void update(const Duration dt);
+    void update(Duration dt);
 private:
     void connectWifi();
-    void mqttClientConnect();
-    void updateDisplay(const Duration dt);
-    void manageControllers();
+    void connectMqttClient();
+    void updateDisplay(Duration dt);
+    void sendTelemetry();
     void manageButton();
     void mqttCallback(char* topic, byte* msg, unsigned int length);
     void buildRpcInterface();
     std::optional<nlohmann::json> handleRPC(const nlohmann::json& rpc);
-    
+
+    // Sensors
+    Driver::AnalogSensor mPHSensor;
+    Driver::AnalogSensor mECSensor;
+    Driver::DigitalSensor mLLSensor;
+    // Controllers
     DoserManager mDoserManager;
     PHController mPHController;
     ECController mECController;
     LiquidLevelController mLLController;
+    // Physical UI
     DFRobot_RGBLCD1602 mLcd;
     ezButton mButton;
+    // Networking
     WiFiClient mWifiClient;
     PubSubClient mMqttClient;
-    JsonRpcInterface mRpcInterface;
+    JsonRpc::Api mRpcApi;
 };

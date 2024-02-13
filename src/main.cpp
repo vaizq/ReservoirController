@@ -1,15 +1,19 @@
 #include "core/dt_timer.hpp"
 #include "app.hpp"
 #include <Arduino.h>
+#include <EEPROM.h>
 
-App app;
+App* app;
+
 
 void setup()
 {
     Serial.begin(115200);
+    EEPROM.begin(512);
     delay(1000);
 
-    app.setup();
+    app = new App();
+    app->setup();
     Serial.println("Setup done");
 }
 
@@ -18,6 +22,6 @@ Core::DtTimer<> timer;
 void loop()
 {
     const auto dt = timer.tick();
-    app.update(dt);
+    app->update(dt);
     delay(1);
 }

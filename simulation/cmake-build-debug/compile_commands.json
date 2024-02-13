@@ -1,0 +1,92 @@
+[
+{
+  "directory": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/cmake-build-debug",
+  "command": "/usr/bin/c++ -I/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui -g -std=gnu++23 -fdiagnostics-color=always -o lib/imgui/CMakeFiles/imgui.dir/imgui_demo.cpp.o -c /home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui/imgui_demo.cpp",
+  "file": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui/imgui_demo.cpp",
+  "output": "lib/imgui/CMakeFiles/imgui.dir/imgui_demo.cpp.o"
+},
+{
+  "directory": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/cmake-build-debug",
+  "command": "/usr/bin/c++ -I/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui -g -std=gnu++23 -fdiagnostics-color=always -o lib/imgui/CMakeFiles/imgui.dir/imgui_draw.cpp.o -c /home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui/imgui_draw.cpp",
+  "file": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui/imgui_draw.cpp",
+  "output": "lib/imgui/CMakeFiles/imgui.dir/imgui_draw.cpp.o"
+},
+{
+  "directory": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/cmake-build-debug",
+  "command": "/usr/bin/c++ -I/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui -g -std=gnu++23 -fdiagnostics-color=always -o lib/imgui/CMakeFiles/imgui.dir/imgui_impl_glfw.cpp.o -c /home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui/imgui_impl_glfw.cpp",
+  "file": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui/imgui_impl_glfw.cpp",
+  "output": "lib/imgui/CMakeFiles/imgui.dir/imgui_impl_glfw.cpp.o"
+},
+{
+  "directory": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/cmake-build-debug",
+  "command": "/usr/bin/c++ -I/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui -g -std=gnu++23 -fdiagnostics-color=always -o lib/imgui/CMakeFiles/imgui.dir/imgui_impl_opengl3.cpp.o -c /home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui/imgui_impl_opengl3.cpp",
+  "file": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui/imgui_impl_opengl3.cpp",
+  "output": "lib/imgui/CMakeFiles/imgui.dir/imgui_impl_opengl3.cpp.o"
+},
+{
+  "directory": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/cmake-build-debug",
+  "command": "/usr/bin/c++ -I/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui -g -std=gnu++23 -fdiagnostics-color=always -o lib/imgui/CMakeFiles/imgui.dir/imgui_stdlib.cpp.o -c /home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui/imgui_stdlib.cpp",
+  "file": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui/imgui_stdlib.cpp",
+  "output": "lib/imgui/CMakeFiles/imgui.dir/imgui_stdlib.cpp.o"
+},
+{
+  "directory": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/cmake-build-debug",
+  "command": "/usr/bin/c++ -I/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui -g -std=gnu++23 -fdiagnostics-color=always -o lib/imgui/CMakeFiles/imgui.dir/imgui_tables.cpp.o -c /home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui/imgui_tables.cpp",
+  "file": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui/imgui_tables.cpp",
+  "output": "lib/imgui/CMakeFiles/imgui.dir/imgui_tables.cpp.o"
+},
+{
+  "directory": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/cmake-build-debug",
+  "command": "/usr/bin/c++ -I/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui -g -std=gnu++23 -fdiagnostics-color=always -o lib/imgui/CMakeFiles/imgui.dir/imgui_widgets.cpp.o -c /home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui/imgui_widgets.cpp",
+  "file": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui/imgui_widgets.cpp",
+  "output": "lib/imgui/CMakeFiles/imgui.dir/imgui_widgets.cpp.o"
+},
+{
+  "directory": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/cmake-build-debug",
+  "command": "/usr/bin/c++ -I/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui -g -std=gnu++23 -fdiagnostics-color=always -o lib/imgui/CMakeFiles/imgui.dir/imgui.cpp.o -c /home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui/imgui.cpp",
+  "file": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui/imgui.cpp",
+  "output": "lib/imgui/CMakeFiles/imgui.dir/imgui.cpp.o"
+},
+{
+  "directory": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/cmake-build-debug",
+  "command": "/usr/bin/c++ -I/home/vaige/Projects/Cultimatics/ReservoirController/simulation/test/../src -isystem /home/vaige/.vcpkg-clion/vcpkg/installed/x64-linux/include -g -std=gnu++23 -fdiagnostics-color=always -o test/CMakeFiles/tests.dir/test_main.cpp.o -c /home/vaige/Projects/Cultimatics/ReservoirController/simulation/test/test_main.cpp",
+  "file": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/test/test_main.cpp",
+  "output": "test/CMakeFiles/tests.dir/test_main.cpp.o"
+},
+{
+  "directory": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/cmake-build-debug",
+  "command": "/usr/bin/c++ -I/home/vaige/Projects/Cultimatics/ReservoirController/simulation/test/../src -isystem /home/vaige/.vcpkg-clion/vcpkg/installed/x64-linux/include -g -std=gnu++23 -fdiagnostics-color=always -o test/CMakeFiles/tests.dir/__/src/reservoir.cpp.o -c /home/vaige/Projects/Cultimatics/ReservoirController/simulation/src/reservoir.cpp",
+  "file": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/src/reservoir.cpp",
+  "output": "test/CMakeFiles/tests.dir/__/src/reservoir.cpp.o"
+},
+{
+  "directory": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/cmake-build-debug",
+  "command": "/usr/bin/c++ -I/home/vaige/Projects/Cultimatics/ReservoirController/simulation/../src -I/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui -isystem /home/vaige/.vcpkg-clion/vcpkg/installed/x64-linux/include -g -std=gnu++23 -fdiagnostics-color=always -o src/CMakeFiles/Simulator.dir/main.cpp.o -c /home/vaige/Projects/Cultimatics/ReservoirController/simulation/src/main.cpp",
+  "file": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/src/main.cpp",
+  "output": "src/CMakeFiles/Simulator.dir/main.cpp.o"
+},
+{
+  "directory": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/cmake-build-debug",
+  "command": "/usr/bin/c++ -I/home/vaige/Projects/Cultimatics/ReservoirController/simulation/../src -I/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui -isystem /home/vaige/.vcpkg-clion/vcpkg/installed/x64-linux/include -g -std=gnu++23 -fdiagnostics-color=always -o src/CMakeFiles/Simulator.dir/simulation.cpp.o -c /home/vaige/Projects/Cultimatics/ReservoirController/simulation/src/simulation.cpp",
+  "file": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/src/simulation.cpp",
+  "output": "src/CMakeFiles/Simulator.dir/simulation.cpp.o"
+},
+{
+  "directory": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/cmake-build-debug",
+  "command": "/usr/bin/c++ -I/home/vaige/Projects/Cultimatics/ReservoirController/simulation/../src -I/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui -isystem /home/vaige/.vcpkg-clion/vcpkg/installed/x64-linux/include -g -std=gnu++23 -fdiagnostics-color=always -o src/CMakeFiles/Simulator.dir/app_base.cpp.o -c /home/vaige/Projects/Cultimatics/ReservoirController/simulation/src/app_base.cpp",
+  "file": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/src/app_base.cpp",
+  "output": "src/CMakeFiles/Simulator.dir/app_base.cpp.o"
+},
+{
+  "directory": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/cmake-build-debug",
+  "command": "/usr/bin/c++ -I/home/vaige/Projects/Cultimatics/ReservoirController/simulation/../src -I/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui -isystem /home/vaige/.vcpkg-clion/vcpkg/installed/x64-linux/include -g -std=gnu++23 -fdiagnostics-color=always -o src/CMakeFiles/Simulator.dir/reservoir.cpp.o -c /home/vaige/Projects/Cultimatics/ReservoirController/simulation/src/reservoir.cpp",
+  "file": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/src/reservoir.cpp",
+  "output": "src/CMakeFiles/Simulator.dir/reservoir.cpp.o"
+},
+{
+  "directory": "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/cmake-build-debug",
+  "command": "/usr/bin/c++ -I/home/vaige/Projects/Cultimatics/ReservoirController/simulation/../src -I/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui -isystem /home/vaige/.vcpkg-clion/vcpkg/installed/x64-linux/include -g -std=gnu++23 -fdiagnostics-color=always -o src/CMakeFiles/Simulator.dir/home/vaige/Projects/Cultimatics/ReservoirController/src/pid/pid.cpp.o -c /home/vaige/Projects/Cultimatics/ReservoirController/src/pid/pid.cpp",
+  "file": "/home/vaige/Projects/Cultimatics/ReservoirController/src/pid/pid.cpp",
+  "output": "src/CMakeFiles/Simulator.dir/home/vaige/Projects/Cultimatics/ReservoirController/src/pid/pid.cpp.o"
+}
+]

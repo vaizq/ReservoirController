@@ -7,8 +7,9 @@ template <typename Clock = std::chrono::steady_clock, typename Scalar = double>
 class RelativeClock 
 {
 public:
-    using duration = Clock::duration;
-    using time_point = Clock::time_point;
+    using BaseClock = Clock;
+    using duration = typename Clock::duration;
+    using time_point = typename Clock::time_point;
 
     RelativeClock(Scalar scale = 1.0f)
     : mScale(scale)
@@ -39,5 +40,5 @@ private:
     Clock mClock;
     Scalar mScale;
     time_point mTp;
-    Clock::time_point mStart;
+    typename Clock::time_point mStart;
 };
