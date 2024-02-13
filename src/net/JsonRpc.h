@@ -75,14 +75,25 @@ namespace JsonRpc
             return Response{{"jsonrpc", 2.0}};
         }
 
+        static Response createSuccessResponse(int id)
+        {
+            return Api::Response {
+                    {"jsonrpc", "2.0"},
+                    {"id", id},
+                    {"result", "success"}
+            };
+        }
+
         static Response createErrorResponse(int id, ErrorCode errorCode, const std::string &errorMessage)
         {
             Api::Response resp;
+            resp["jsonrpc"] = "2.0";
             resp["id"] = id;
-            resp["error"]["code"] = static_cast<int>(errorCode);
-            resp["error"]["message"] = errorCode;
+            resp["error"]["code"] = errorCode;
+            resp["error"]["message"] = errorMessage;
             return resp;
         }
+
     private:
 
         // Get description of the provided rpc interface

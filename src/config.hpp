@@ -34,8 +34,8 @@ constexpr std::array<Driver::TB6612FNGValve::PinDef, 4> doserDefs =
         Driver::TB6612FNGValve::PinDef{.xIN1 = 16, .xIN2 = 15, .PWMx = 17}
     };
 constexpr uint8_t valveSwitchPin = 27;
-constexpr uint8_t liquidLevelTopSensorPin = 32;
-constexpr uint8_t liquidLevelBottomSensorPin = 35;
+constexpr uint8_t liquidLevelFullSensorPin = 32;
+constexpr uint8_t liquidLevelLowSensorPin = 35;
 constexpr uint8_t phSensorPin = 34;
 constexpr uint8_t ecSensorPin = 36;
 constexpr uint8_t buttonPin = 33;

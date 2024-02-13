@@ -29,13 +29,12 @@ public:
         return Config{};
     }
 
-    LiquidLevelController(const SensorT& sensor, ValveT&& valve, const Config& config)
+    LiquidLevelController(const SensorT& sensor, ValveT& valve, const Config& config)
     : 
         mSensor{sensor},
-        mValve{std::forward<ValveT>(valve)},
-        mConfig(std::move(config))
+        mValve{valve},
+        mConfig(config)
     {
-        mValve.close();
         stop();
     }
 
@@ -101,7 +100,7 @@ private:
     }
 
     const SensorT& mSensor;
-    ValveT mValve;
+    ValveT& mValve;
     Config mConfig;
     Duration mFromPrevRefill{0};
     Status mStatus;
