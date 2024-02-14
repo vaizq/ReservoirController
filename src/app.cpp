@@ -6,6 +6,10 @@
 
 using namespace std::chrono_literals;
 
+constexpr std::string_view requestTopic{"ReservoirController/rpc/request"};
+constexpr std::string_view responseTopic{"ReservoirController/rpc/response"};
+constexpr std::string_view telemetryTopic{"ReservoirController/telemetry"};
+constexpr std::string_view eventTopic{"ReservoirController/event"};
 
 App::App()
 :
@@ -133,8 +137,9 @@ void App::sendTelemetry()
             return "empty";
         }
     }();
+    telemetry["valveState"] = mValve.isOpen() ? "open" : "closed";
 
-    mMqttClient.publish("ReservoirController/telemetry", telemetry.dump().c_str());
+    mMqttClient.publish(telemetryTopic.data(), telemetry.dump().c_str());
 }
 
 // User can manually control dosers with a button
@@ -160,19 +165,26 @@ void App::mqttCallback(char* topic, byte* msg, unsigned int length)
 
     msg[length] = 0;
     json j = json::parse(msg, nullptr, false);
-    if (!j.is_discarded())
-    {
-        const auto response = handleRPC(j);
-        if (response)
-        {
-            mMqttClient.publish("ReservoirController/rpc/response", response->dump().c_str());
-        }
-    }
-    else
-    {
-        Serial.println("Invalid json");
+    if (j.is_discarded()) {
+        Serial.println("Unable to parse message");
+        return;
     }
 
+    if (topic == requestTopic) {
+        if (j.contains("method")) {
+            const auto response = handleRPC(j);
+            if (response) {
+                mMqttClient.publish(responseTopic.data(), response->dump().c_str());
+            }
+        }
+        else {
+            Serial.print("RPC does not contain method");
+        }
+    }
+    else {
+        Serial.print("Unknown topic: ");
+        Serial.println(topic);
+    }
 }
 
 std::optional<nlohmann::json> App::handleRPC(const nlohmann::json &rpc)
@@ -206,7 +218,7 @@ void App::connectMqttClient()
         if (mMqttClient.connect("ReservoirController"))
         {
             Serial.println("Connected");
-            mMqttClient.subscribe("ReservoirController/rpc/request");
+            mMqttClient.subscribe(requestTopic.data());
             break;
         }
         else
@@ -229,14 +241,14 @@ void App::buildApi()
     mRpcApi.bind("openValve",
                  [this](const Request& req) {
                      mValve.open();
-                     return JsonRpc::Api::createSuccessResponse(req["id"]);
+                     return JsonRpc::Api::createSuccessResponse(req.value("id", 0));
                  }
     );
 
     mRpcApi.bind("closeValve",
                  [this](const Request& req) {
                      mValve.close();
-                     return JsonRpc::Api::createSuccessResponse(req["id"]);
+                     return JsonRpc::Api::createSuccessResponse(req.value("id", 0));
                  }
     );
 
@@ -249,13 +261,13 @@ void App::buildApi()
                          DoserManager::DoserID id = req["params"]["doserID"];
                          float amount = req["params"]["amount"];
                          if (id >= DoserManager::DoserCount) {
-                             return JsonRpc::Api::createErrorResponse(req["id"], JsonRpc::ErrorCode::InvalidParams, "Invalid doserID");
+                             return JsonRpc::Api::createErrorResponse(req.value("id", 0), JsonRpc::ErrorCode::InvalidParams, "Invalid doserID");
                          }
                          mDoserManager.queueDose(id, amount);
-                         return JsonRpc::Api::createSuccessResponse(req["id"]);
+                         return JsonRpc::Api::createSuccessResponse(req.value("id", 0));
                      }
                      else {
-                         return JsonRpc::Api::createErrorResponse(req["id"], JsonRpc::ErrorCode::InvalidParams, "parameters doserID or amount missing");
+                         return JsonRpc::Api::createErrorResponse(req.value("id", 0), JsonRpc::ErrorCode::InvalidParams, "parameters doserID or amount missing");
                      }
                  }
     );
@@ -263,14 +275,14 @@ void App::buildApi()
     mRpcApi.bind("resetDosers",
                  [this](const Request& req) {
                      mDoserManager.reset();
-                     return JsonRpc::Api::createSuccessResponse(req["id"]);
+                     return JsonRpc::Api::createSuccessResponse(req.value("id", 0));
                  }
     );
 
     mRpcApi.bind("dosersCount",
                  [](const Request& req) {
                      const auto count = DoserManager::DoserCount;
-                     return JsonRpc::Api::createSuccessResponse(req["id"])["result"] = count;
+                     return JsonRpc::Api::createSuccessResponse(req.value("id", 0))["result"] = count;
                  }
     );
 
@@ -279,14 +291,14 @@ void App::buildApi()
                             if (hasParam(req, "phValue")) {
                                 const bool success = mPHSensor.calibrate(req["params"]["phValue"]);
                                 if (success) {
-                                    return JsonRpc::Api::createSuccessResponse(req["id"]);
+                                    return JsonRpc::Api::createSuccessResponse(req.value("id", 0));
                                 }
                                 else {
-                                    return JsonRpc::Api::createErrorResponse(req["id"], JsonRpc::ErrorCode::ServerError, "calibration failed");
+                                    return JsonRpc::Api::createErrorResponse(req.value("id", 0), JsonRpc::ErrorCode::ServerError, "calibration failed");
                                 }
                             }
                             else {
-                                return JsonRpc::Api::createErrorResponse(req["id"], JsonRpc::ErrorCode::InvalidParams, "phValue missing");
+                                return JsonRpc::Api::createErrorResponse(req.value("id", 0), JsonRpc::ErrorCode::InvalidParams, "phValue missing");
                             }
                        },
                        {Parameter{Parameter::Type::Real, "phValue"}}
@@ -297,14 +309,14 @@ void App::buildApi()
                      if (hasParam(req, "ecValue")) {
                          const bool success = mECSensor.calibrate(req["params"]["ecValue"]);
                          if (success) {
-                             return JsonRpc::Api::createSuccessResponse(req["id"]);
+                             return JsonRpc::Api::createSuccessResponse(req.value("id", 0));
                          }
                          else {
-                             return JsonRpc::Api::createErrorResponse(req["id"], JsonRpc::ErrorCode::ServerError, "calibration failed");
+                             return JsonRpc::Api::createErrorResponse(req.value("id", 0), JsonRpc::ErrorCode::ServerError, "calibration failed");
                          }
                      }
                      else {
-                         return JsonRpc::Api::createErrorResponse(req["id"], JsonRpc::ErrorCode::InvalidParams, "ecValue missing");
+                         return JsonRpc::Api::createErrorResponse(req.value("id", 0), JsonRpc::ErrorCode::InvalidParams, "ecValue missing");
                      }
                  },
                  {Parameter{Parameter::Type::Real, "ecValue"}}

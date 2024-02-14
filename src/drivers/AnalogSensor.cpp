@@ -36,7 +36,6 @@ void Driver::AnalogSensor::update(Duration dt)
     const float k = dy / dx;
     const float c = mCalibration.first.second;
     mPH = k * x + c;
-    Serial.printf("X: %.2f\ndx: %.2f\ndy: %.2f\nk: %.2f\nc: %.2f\nPH: %.1f\n", x, dx, dy, k, c, mPH);
 }
 
 bool Driver::AnalogSensor::calibrate(float value, int numSamples)
@@ -47,7 +46,7 @@ bool Driver::AnalogSensor::calibrate(float value, int numSamples)
         {
             total += mVoltageReader.voltage();
         }
-        return total / numSamples;
+        return total / static_cast<float>(numSamples);
     }();
 
     if (std::abs(voltage - mCalibration.first.first) < std::abs(voltage - mCalibration.second.first))

@@ -14,7 +14,6 @@ void setup()
 
     app = new App();
     app->setup();
-    Serial.println("Setup done");
 }
 
 Core::DtTimer<> timer;

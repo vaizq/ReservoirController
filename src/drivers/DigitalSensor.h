@@ -14,7 +14,6 @@ namespace Driver
     public:
         explicit DigitalSensor(uint8_t pin, int highState = 0x01);
         [[nodiscard]] bool read() const;
-
     private:
         uint8_t mPin;
         const int mHighState;
