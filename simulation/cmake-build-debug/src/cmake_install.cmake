@@ -1,4 +1,4 @@
-# Install script for directory: /home/vaige/Projects/Cultimatics/ReservoirController/simulation/src
+# Install script for directory: /home/vaige/Projects/ReservoirController/simulation/src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

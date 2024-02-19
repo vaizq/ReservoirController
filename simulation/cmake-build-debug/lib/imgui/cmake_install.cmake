@@ -1,4 +1,4 @@
-# Install script for directory: /home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui
+# Install script for directory: /home/vaige/Projects/ReservoirController/simulation/lib/imgui
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

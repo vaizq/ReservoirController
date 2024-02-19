@@ -825,8 +825,8 @@
 	"kind" : "cmakeFiles",
 	"paths" : 
 	{
-		"build" : "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/cmake-build-debug",
-		"source" : "/home/vaige/Projects/Cultimatics/ReservoirController/simulation"
+		"build" : "/home/vaige/Projects/ReservoirController/simulation/cmake-build-debug",
+		"source" : "/home/vaige/Projects/ReservoirController/simulation"
 	},
 	"version" : 
 	{

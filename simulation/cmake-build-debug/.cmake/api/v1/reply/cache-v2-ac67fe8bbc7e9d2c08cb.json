@@ -55,7 +55,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/cmake-build-debug"
+			"value" : "/home/vaige/Projects/ReservoirController/simulation/cmake-build-debug"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -543,7 +543,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/cmake-build-debug/CMakeFiles/pkgRedirects"
+			"value" : "/home/vaige/Projects/ReservoirController/simulation/cmake-build-debug/CMakeFiles/pkgRedirects"
 		},
 		{
 			"name" : "CMAKE_GENERATOR",
@@ -603,7 +603,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/home/vaige/Projects/Cultimatics/ReservoirController/simulation"
+			"value" : "/home/vaige/Projects/ReservoirController/simulation"
 		},
 		{
 			"name" : "CMAKE_INSTALL_PREFIX",
@@ -1383,7 +1383,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/cmake-build-debug"
+			"value" : "/home/vaige/Projects/ReservoirController/simulation/cmake-build-debug"
 		},
 		{
 			"name" : "Simulator_IS_TOP_LEVEL",
@@ -1407,7 +1407,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/home/vaige/Projects/Cultimatics/ReservoirController/simulation"
+			"value" : "/home/vaige/Projects/ReservoirController/simulation"
 		},
 		{
 			"name" : "VCPKG_APPLOCAL_DEPS",

@@ -58,7 +58,7 @@
 			[
 				{
 					"backtrace" : 3,
-					"path" : "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui"
+					"path" : "/home/vaige/Projects/ReservoirController/simulation/lib/imgui"
 				}
 			],
 			"language" : "CXX",

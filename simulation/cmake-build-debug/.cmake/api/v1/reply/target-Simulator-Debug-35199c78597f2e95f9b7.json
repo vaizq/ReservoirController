@@ -132,11 +132,11 @@
 			[
 				{
 					"backtrace" : 15,
-					"path" : "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/../src"
+					"path" : "/home/vaige/Projects/ReservoirController/simulation/../src"
 				},
 				{
 					"backtrace" : 3,
-					"path" : "/home/vaige/Projects/Cultimatics/ReservoirController/simulation/lib/imgui"
+					"path" : "/home/vaige/Projects/ReservoirController/simulation/lib/imgui"
 				},
 				{
 					"backtrace" : 3,
@@ -275,7 +275,7 @@
 		{
 			"backtrace" : 2,
 			"compileGroupIndex" : 0,
-			"path" : "/home/vaige/Projects/Cultimatics/ReservoirController/src/pid/pid.cpp",
+			"path" : "/home/vaige/Projects/ReservoirController/src/pid/pid.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],

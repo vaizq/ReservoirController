@@ -42,13 +42,13 @@ bool Simulation::update()
     static DtTimer<Clock> timer(mClock);
     const auto dt = timer.tick();
 
-    updateGui(dt);
+    onGUI(dt);
     updateControllers(dt);
 
     return true;
 }
 
-void Simulation::updateGui(const Duration)
+void Simulation::onGUI(const Duration)
 {
     ImGui::Begin("Reservoir status");
     {

@@ -6,7 +6,7 @@
 #include "core/ph_controller.hpp"
 #include "core/ec_controller.hpp"
 #include "core/liquid_level_controller.hpp"
-#include "core/dosing_pump.hpp"
+#include "core/doser.hpp"
 #include "./driver/liquid_level_sensor.hpp"
 #include "./driver/valve.hpp"
 #include "./driver/ph_sensor.hpp"
@@ -15,7 +15,7 @@
 #include <chrono>
 
 
-using Doser = Core::DosingPump<Driver::Valve>;
+using Doser = Core::Doser<Driver::Valve>;
 
 
 struct Config
@@ -27,9 +27,6 @@ struct Config
     float doserFlowRate = 0.001f;
 };
 
-
-static constexpr Core::Controller::Config phControllerConfig{5.8f, 6.2f, 0.01f, std::chrono::minutes(10)};
-static constexpr Core::Controller::Config ecControllerConfig{1.0f, 1.2f, 0.1f, std::chrono::minutes(10)};
 constexpr size_t nutrientPumpCount{3};
 constexpr std::array<float, nutrientPumpCount> feedingSchedule = {1.0f, 2.0f, 3.0f}; // GHE three part
 
@@ -53,7 +50,7 @@ private:
     Simulation();
     bool update() override;
     void updateControllers(const Duration dt);
-    void updateGui(const Duration dt);
+    void onGUI(const Duration dt);
 
 private:
     GLFWwindow* mWindow;
