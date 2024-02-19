@@ -66,21 +66,36 @@ namespace JsonRpc
         {
             if (auto it = mMethods.find(request["method"]); it != mMethods.end()) {
                 auto response = it->second.procedure(request);
-                response["jsonrpc"] = 2.0;
+                response["jsonrpc"] = "2.0";
                 return response;
-            } else if (request["method"] == "getDescription" || request["method"] == "getDesc") {
+            }
+            else if (request["method"] == "getDescription" || request["method"] == "getDesc") {
                 return description();
             }
+            else {
+                return Response{{"jsonrpc", 2.0},
+                                {"id", request.value("id", 0)},
+                                {"error", "unknown method" + request["method"].template get<std::string>()}};
+            }
 
-            return Response{{"jsonrpc", 2.0}};
         }
 
-        static Response createSuccessResponse(int id)
+        template <typename T>
+        static Response createSuccessResponse(int id, T&& result)
         {
             return Api::Response {
                     {"jsonrpc", "2.0"},
                     {"id", id},
-                    {"result", "success"}
+                    {"result", std::forward<T>(result)}
+            };
+        }
+
+        static Response createSuccessResponse(int id, std::string result = "success")
+        {
+            return Api::Response {
+                    {"jsonrpc", "2.0"},
+                    {"id", id},
+                    {"result", std::move(result)}
             };
         }
 

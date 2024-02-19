@@ -10,8 +10,8 @@
 #include <optional>
 #include <map>
 
-constexpr char ssid[] = "Zhone_9C8E";
-constexpr char passwd[] = "znid309149582";
+constexpr char ssid[] = "";
+constexpr char passwd[] = "";
 constexpr char broker[] = "test.mosquitto.org";
 
 

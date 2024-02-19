@@ -282,7 +282,7 @@ void App::buildApi()
     mRpcApi.bind("dosersCount",
                  [](const Request& req) {
                      const auto count = DoserManager::DoserCount;
-                     return JsonRpc::Api::createSuccessResponse(req.value("id", 0))["result"] = count;
+                     return JsonRpc::Api::createSuccessResponse(req.value("id", 0), count);
                  }
     );
 
